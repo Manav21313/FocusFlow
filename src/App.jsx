@@ -30,6 +30,7 @@ function App() {
   const [sessions, setSessions] = useState(loadSessions)
   const [settings, setSettings] = useState(loadSettings)
   const ActivePage = pages[currentPage]
+  const isTimerPage = currentPage === 'timer'
 
   useEffect(() => {
     const syncPageFromHash = () => setCurrentPage(getPageFromHash())
@@ -69,14 +70,17 @@ function App() {
   }
 
   return (
-    <main className="app-shell">
-      <Navbar currentPage={currentPage} onNavigate={navigate} />
+    <main className={`app-shell ${isTimerPage ? 'timer-shell' : ''}`}>
+      {isTimerPage ? null : (
+        <Navbar currentPage={currentPage} onNavigate={navigate} />
+      )}
       <ActivePage
         sessions={sessions}
         settings={settings}
         onSaveSession={addSession}
         onDeleteSession={deleteSession}
         onClearSessions={clearSessions}
+        onNavigate={navigate}
         onSaveSettings={setSettings}
       />
     </main>

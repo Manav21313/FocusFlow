@@ -4,6 +4,11 @@ import { toDateKey } from '../utils/dateHelpers'
 
 const presetMinutes = [25, 45, 60]
 const energyLevels = ['Low', 'Medium', 'Good', 'High']
+const timerNavItems = [
+  { id: 'dashboard', label: 'Dashboard' },
+  { id: 'history', label: 'History' },
+  { id: 'settings', label: 'Settings' },
+]
 
 const formatSeconds = (seconds) => {
   const mins = Math.floor(seconds / 60)
@@ -11,6 +16,8 @@ const formatSeconds = (seconds) => {
 
   return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
 }
+
+const formatTimePart = (value) => String(value).padStart(2, '0')
 
 const createSessionId = () =>
   `session-${Date.now()}-${Math.random().toString(16).slice(2)}`
@@ -33,7 +40,7 @@ const playSessionTone = () => {
   oscillator.stop(audioContext.currentTime + 0.3)
 }
 
-function TimerPage({ settings, onSaveSession }) {
+function TimerPage({ settings, onNavigate, onSaveSession }) {
   const [selectedMinutes, setSelectedMinutes] = useState(settings.defaultFocusMinutes)
   const [customMinutes, setCustomMinutes] = useState(settings.defaultFocusMinutes)
   const [subject, setSubject] = useState('Computer Science')
@@ -55,6 +62,17 @@ function TimerPage({ settings, onSaveSession }) {
 
   const totalSeconds = plannedMinutes * 60
   const progress = totalSeconds === 0 ? 0 : ((totalSeconds - timeLeft) / totalSeconds) * 100
+  const countdownParts = useMemo(() => {
+    const hours = Math.floor(timeLeft / 3600)
+    const minutes = Math.floor((timeLeft % 3600) / 60)
+    const seconds = timeLeft % 60
+
+    return [
+      { label: 'Hours', value: String(hours) },
+      { label: 'Minutes', value: formatTimePart(minutes) },
+      { label: 'Seconds', value: formatTimePart(seconds) },
+    ]
+  }, [timeLeft])
 
   useEffect(() => {
     if (!isRunning) return undefined
@@ -157,193 +175,225 @@ function TimerPage({ settings, onSaveSession }) {
   }
 
   return (
-    <div className="page-grid timer-page">
-      <section className="panel timer-panel" aria-label="Focus timer">
-        <div className="panel-heading">
-          <div>
-            <p className="eyebrow">Focus Timer</p>
-            <h1>{formatSeconds(timeLeft)}</h1>
-          </div>
-          <span className="timer-status">
-            {timeLeft === 0 ? 'Finished' : isRunning ? 'Running' : 'Ready'}
-          </span>
-        </div>
+    <div className="timer-reference-page">
+      <section className="countdown-reference" aria-label="Focus countdown">
+        <p className="reference-handle">@temmahuay</p>
+        <h1 className="countdown-title">
+          Countdown timer
+          <br />
+          Variables
+        </h1>
 
-        <div
-          className="timer-face"
-          style={{ '--timer-progress': `${progress}%` }}
+        <dl
+          className="countdown-card"
           aria-label={`${formatSeconds(timeLeft)} remaining`}
         >
-          <span>{formatSeconds(timeLeft)}</span>
-        </div>
+          {countdownParts.map((part) => (
+            <div className="countdown-part" key={part.label}>
+              <dt>{part.label}</dt>
+              <dd>{part.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
 
-        <div className="preset-grid" aria-label="Focus length">
-          {presetMinutes.map((minutes) => (
+      <nav className="timer-route-links" aria-label="FocusFlow navigation">
+        {timerNavItems.map((item) => (
+          <button
+            className="secondary-button"
+            key={item.id}
+            type="button"
+            onClick={() => onNavigate(item.id)}
+          >
+            {item.label}
+          </button>
+        ))}
+      </nav>
+
+      <div className="timer-workflow">
+        <section className="panel timer-control-panel" aria-label="Timer controls">
+          <div className="panel-heading">
+            <div>
+              <p className="eyebrow">Focus Timer</p>
+              <h2>{formatSeconds(timeLeft)}</h2>
+            </div>
+            <span className="timer-status">
+              {timeLeft === 0 ? 'Finished' : isRunning ? 'Running' : 'Ready'}
+            </span>
+          </div>
+
+          <div className="reference-progress" aria-hidden="true">
+            <span style={{ width: `${progress}%` }} />
+          </div>
+
+          <div className="preset-grid" aria-label="Focus length">
+            {presetMinutes.map((minutes) => (
+              <button
+                className={selectedMinutes === minutes ? 'active' : ''}
+                key={minutes}
+                type="button"
+                onClick={() => changePlannedMinutes(minutes)}
+                disabled={hasStarted}
+              >
+                {minutes} min
+              </button>
+            ))}
             <button
-              className={selectedMinutes === minutes ? 'active' : ''}
-              key={minutes}
+              className={selectedMinutes === 'custom' ? 'active' : ''}
               type="button"
-              onClick={() => changePlannedMinutes(minutes)}
+              onClick={() => changePlannedMinutes('custom')}
               disabled={hasStarted}
             >
-              {minutes} min
+              Custom
             </button>
-          ))}
-          <button
-            className={selectedMinutes === 'custom' ? 'active' : ''}
-            type="button"
-            onClick={() => changePlannedMinutes('custom')}
-            disabled={hasStarted}
-          >
-            Custom
-          </button>
-        </div>
-
-        {selectedMinutes === 'custom' ? (
-          <label className="field compact-field">
-            <span>Custom minutes</span>
-            <input
-              min="1"
-              type="number"
-              value={customMinutes}
-              onChange={(event) => changeCustomMinutes(event.target.value)}
-              disabled={hasStarted}
-            />
-          </label>
-        ) : null}
-
-        <div className="timer-actions">
-          <button
-            className="primary-button"
-            type="button"
-            onClick={startTimer}
-            disabled={isRunning || timeLeft === 0}
-          >
-            {hasStarted ? 'Resume' : 'Start'}
-          </button>
-          <button
-            className="secondary-button"
-            type="button"
-            onClick={pauseTimer}
-            disabled={!isRunning}
-          >
-            Pause
-          </button>
-          <button
-            className="secondary-button"
-            type="button"
-            onClick={() => resetTimer()}
-            disabled={!hasStarted && elapsedSeconds === 0}
-          >
-            Reset
-          </button>
-        </div>
-      </section>
-
-      <section className="panel session-panel" aria-label="Session details">
-        <div className="panel-heading">
-          <div>
-            <p className="eyebrow">Study Session</p>
-            <h2>Subject and task</h2>
           </div>
-        </div>
 
-        <div className="form-grid">
-          <label className="field">
-            <span>Subject</span>
-            <input
-              value={subject}
-              onChange={(event) => setSubject(event.target.value)}
-              placeholder="Math, Biology, Computer Science"
-            />
-          </label>
-          <label className="field">
-            <span>Task</span>
-            <input
-              value={task}
-              onChange={(event) => setTask(event.target.value)}
-              placeholder="Read chapter 4"
-            />
-          </label>
-        </div>
+          {selectedMinutes === 'custom' ? (
+            <label className="field compact-field">
+              <span>Custom minutes</span>
+              <input
+                min="1"
+                type="number"
+                value={customMinutes}
+                onChange={(event) => changeCustomMinutes(event.target.value)}
+                disabled={hasStarted}
+              />
+            </label>
+          ) : null}
 
-        <div className="session-metrics">
-          <article>
-            <span>Planned</span>
-            <strong>{plannedMinutes} min</strong>
-          </article>
-          <article>
-            <span>Actual</span>
-            <strong>{Math.floor(elapsedSeconds / 60)} min</strong>
-          </article>
-          <article>
-            <span>Distractions</span>
-            <strong>{distractions}</strong>
-          </article>
-        </div>
+          <div className="timer-actions">
+            <button
+              className="primary-button"
+              type="button"
+              onClick={startTimer}
+              disabled={isRunning || timeLeft === 0}
+            >
+              {hasStarted ? 'Resume' : 'Start'}
+            </button>
+            <button
+              className="secondary-button"
+              type="button"
+              onClick={pauseTimer}
+              disabled={!isRunning}
+            >
+              Pause
+            </button>
+            <button
+              className="secondary-button"
+              type="button"
+              onClick={() => resetTimer()}
+              disabled={!hasStarted && elapsedSeconds === 0}
+            >
+              Reset
+            </button>
+          </div>
+        </section>
 
-        <div className="focus-actions">
-          <button
-            className="warning-button"
-            type="button"
-            onClick={() => setDistractions((count) => count + 1)}
-            disabled={!hasStarted}
-          >
-            I got distracted
-          </button>
-          <button
-            className="secondary-button"
-            type="button"
-            onClick={() => requestEnergyBeforeSave(false)}
-            disabled={!hasStarted}
-          >
-            Stop Session
-          </button>
-          <button
-            className="primary-button"
-            type="button"
-            onClick={() => requestEnergyBeforeSave(true)}
-            disabled={!hasStarted}
-          >
-            Complete Session
-          </button>
-        </div>
-
-        {pendingSession ? (
-          <div className="energy-box" role="dialog" aria-label="Energy level">
+        <section className="panel session-panel" aria-label="Session details">
+          <div className="panel-heading">
             <div>
-              <p className="eyebrow">Before saving</p>
-              <h3>How was your energy?</h3>
-            </div>
-            <div className="energy-grid">
-              {energyLevels.map((energyLevel) => (
-                <button
-                  className="secondary-button"
-                  key={energyLevel}
-                  type="button"
-                  onClick={() => savePendingSession(energyLevel)}
-                >
-                  {energyLevel}
-                </button>
-              ))}
-              <button
-                className="danger-button"
-                type="button"
-                onClick={() => setPendingSession(null)}
-              >
-                Cancel
-              </button>
+              <p className="eyebrow">Study Session</p>
+              <h2>Subject and task</h2>
             </div>
           </div>
-        ) : null}
 
-        {showBreak ? (
-          <BreakTimer
-            minutes={settings.defaultBreakMinutes}
-            onDismiss={() => setShowBreak(false)}
-          />
-        ) : null}
-      </section>
+          <div className="form-grid">
+            <label className="field">
+              <span>Subject</span>
+              <input
+                value={subject}
+                onChange={(event) => setSubject(event.target.value)}
+                placeholder="Math, Biology, Computer Science"
+              />
+            </label>
+            <label className="field">
+              <span>Task</span>
+              <input
+                value={task}
+                onChange={(event) => setTask(event.target.value)}
+                placeholder="Read chapter 4"
+              />
+            </label>
+          </div>
+
+          <div className="session-metrics">
+            <article>
+              <span>Planned</span>
+              <strong>{plannedMinutes} min</strong>
+            </article>
+            <article>
+              <span>Actual</span>
+              <strong>{Math.floor(elapsedSeconds / 60)} min</strong>
+            </article>
+            <article>
+              <span>Distractions</span>
+              <strong>{distractions}</strong>
+            </article>
+          </div>
+
+          <div className="focus-actions">
+            <button
+              className="warning-button"
+              type="button"
+              onClick={() => setDistractions((count) => count + 1)}
+              disabled={!hasStarted}
+            >
+              I got distracted
+            </button>
+            <button
+              className="secondary-button"
+              type="button"
+              onClick={() => requestEnergyBeforeSave(false)}
+              disabled={!hasStarted}
+            >
+              Stop Session
+            </button>
+            <button
+              className="primary-button"
+              type="button"
+              onClick={() => requestEnergyBeforeSave(true)}
+              disabled={!hasStarted}
+            >
+              Complete Session
+            </button>
+          </div>
+
+          {pendingSession ? (
+            <div className="energy-box" role="dialog" aria-label="Energy level">
+              <div>
+                <p className="eyebrow">Before saving</p>
+                <h3>How was your energy?</h3>
+              </div>
+              <div className="energy-grid">
+                {energyLevels.map((energyLevel) => (
+                  <button
+                    className="secondary-button"
+                    key={energyLevel}
+                    type="button"
+                    onClick={() => savePendingSession(energyLevel)}
+                  >
+                    {energyLevel}
+                  </button>
+                ))}
+                <button
+                  className="danger-button"
+                  type="button"
+                  onClick={() => setPendingSession(null)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          {showBreak ? (
+            <BreakTimer
+              minutes={settings.defaultBreakMinutes}
+              onDismiss={() => setShowBreak(false)}
+            />
+          ) : null}
+        </section>
+      </div>
     </div>
   )
 }

@@ -4,6 +4,14 @@
   padding: 24px 0 42px;
 }
 
+.timer-shell {
+  width: 100%;
+  min-height: 100vh;
+  padding: 0;
+  color: #f7f5f8;
+  background: #1f1f20;
+}
+
 .navbar {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -249,6 +257,213 @@ input::placeholder {
   grid-template-columns: minmax(320px, 0.9fr) minmax(420px, 1.1fr);
   gap: 18px;
   align-items: start;
+}
+
+.timer-reference-page {
+  min-height: 100vh;
+  background: #1f1f20;
+}
+
+.countdown-reference {
+  display: grid;
+  align-content: start;
+  width: min(calc(100% - 48px), 488px);
+  min-height: 630px;
+  margin: 0 auto;
+  padding: clamp(72px, 16.8vh, 106px) 0 52px;
+}
+
+.reference-handle {
+  margin: 0 0 52px;
+  color: #f1edf4;
+  font-size: 1rem;
+  line-height: 1.2;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.countdown-title {
+  margin: 0 0 39px;
+  color: #f8f7f9;
+  font-size: clamp(3.6rem, 6.3vw, 4rem);
+  font-weight: 400;
+  line-height: 1.16;
+  letter-spacing: 0;
+}
+
+.countdown-card {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 218px;
+  margin: 0;
+  padding: 44px 52px 42px;
+  border: 1px solid rgba(116, 104, 128, 0.58);
+  border-radius: 26px;
+  background: #1c1c1d;
+  box-shadow:
+    0 42px 78px rgba(115, 54, 180, 0.45),
+    0 0 34px rgba(115, 54, 180, 0.36),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.countdown-part {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  min-width: 0;
+  text-align: center;
+}
+
+.countdown-part dt {
+  color: #f3f1f5;
+  font-size: 1.58rem;
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+.countdown-part dd {
+  margin: 0 0 4px;
+  color: #fbf9fc;
+  font-size: clamp(4.25rem, 8.4vw, 4.75rem);
+  font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: 0;
+}
+
+.timer-workflow {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.9fr) minmax(420px, 1.1fr);
+  gap: 18px;
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 0 0 56px;
+}
+
+.timer-workflow > .panel {
+  min-width: 0;
+}
+
+.timer-shell .panel,
+.timer-shell .break-card {
+  border-color: rgba(116, 104, 128, 0.44);
+  color: #f7f5f8;
+  background: #242426;
+  box-shadow: 0 20px 58px rgba(0, 0, 0, 0.28);
+}
+
+.timer-shell .panel h2,
+.timer-shell .panel h3,
+.timer-shell .session-metrics strong {
+  color: #f7f5f8;
+}
+
+.timer-shell .panel p,
+.timer-shell .field span,
+.timer-shell .toggle-field span,
+.timer-shell .session-metrics span {
+  color: #c7c0ce;
+}
+
+.timer-shell .eyebrow,
+.timer-shell .timer-status {
+  color: #cab1ff;
+}
+
+.timer-shell .timer-status {
+  border-color: rgba(167, 139, 250, 0.28);
+  background: rgba(124, 58, 237, 0.14);
+}
+
+.timer-control-panel {
+  display: grid;
+  gap: 18px;
+  align-self: start;
+}
+
+.timer-route-links {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto 18px;
+}
+
+.timer-route-links button {
+  min-width: 104px;
+}
+
+.reference-progress {
+  overflow: hidden;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.11);
+}
+
+.reference-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #a78bfa;
+}
+
+.timer-shell .nav-links button,
+.timer-shell .preset-grid button,
+.timer-shell input,
+.timer-shell select,
+.timer-shell .secondary-button,
+.timer-shell .session-metrics article {
+  border-color: rgba(116, 104, 128, 0.44);
+  color: #f7f5f8;
+  background: #1d1d1f;
+}
+
+.timer-shell .preset-grid button {
+  min-width: 0;
+}
+
+.timer-shell .nav-links button.active,
+.timer-shell .preset-grid button.active {
+  border-color: rgba(167, 139, 250, 0.45);
+  color: #f3edff;
+  background: rgba(124, 58, 237, 0.22);
+}
+
+.timer-shell input::placeholder {
+  color: #8f8799;
+}
+
+.timer-shell .primary-button {
+  color: #ffffff;
+  background: #7c3aed;
+}
+
+.timer-shell .primary-button:not(:disabled):hover {
+  background: #6d28d9;
+}
+
+.timer-shell .secondary-button:not(:disabled):hover {
+  border-color: rgba(167, 139, 250, 0.56);
+  background: #28242e;
+}
+
+.timer-shell .warning-button {
+  border-color: rgba(228, 165, 72, 0.32);
+  color: #ffe0ad;
+  background: rgba(215, 139, 31, 0.14);
+}
+
+.timer-shell .danger-button {
+  color: #ffd1d1;
+  background: rgba(220, 38, 38, 0.16);
+}
+
+.timer-shell .energy-box {
+  border-color: rgba(167, 139, 250, 0.28);
+  background: rgba(124, 58, 237, 0.14);
 }
 
 .timer-panel {
@@ -674,6 +889,7 @@ select:focus-visible {
 
 @media (max-width: 980px) {
   .page-grid,
+  .timer-workflow,
   .hero-panel,
   .stats-grid,
   .insight-grid,
@@ -697,12 +913,18 @@ select:focus-visible {
 
 @media (max-width: 760px) {
   .app-shell {
-    width: min(100% - 20px, 1180px);
+    width: min(calc(100% - 20px), 1180px);
     padding-top: 14px;
+  }
+
+  .timer-shell {
+    width: 100%;
+    padding-top: 0;
   }
 
   .navbar,
   .page-grid,
+  .timer-workflow,
   .hero-panel,
   .stats-grid,
   .insight-grid,
@@ -752,5 +974,57 @@ select:focus-visible {
 
   .panel-heading {
     display: grid;
+  }
+
+  .countdown-reference {
+    width: min(100%, 390px);
+    min-height: 592px;
+    margin: 0;
+    padding: 70px 16px 46px;
+  }
+
+  .reference-handle {
+    margin-bottom: 44px;
+  }
+
+  .countdown-title {
+    margin-bottom: 34px;
+    font-size: clamp(2.5rem, 10.6vw, 3rem);
+  }
+
+  .countdown-card {
+    justify-self: center;
+    width: min(100%, 346px);
+    min-height: 190px;
+    padding: 38px 16px 36px;
+    border-radius: 24px;
+  }
+
+  .countdown-part dt {
+    font-size: clamp(0.95rem, 4.2vw, 1.12rem);
+  }
+
+  .countdown-part dd {
+    font-size: clamp(2.75rem, 13vw, 3.45rem);
+  }
+
+  .timer-workflow {
+    width: 370px;
+    max-width: calc(100% - 20px);
+    margin-right: 10px;
+    margin-left: 10px;
+  }
+
+  .timer-route-links {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 370px;
+    max-width: calc(100% - 20px);
+    margin-right: 10px;
+    margin-left: 10px;
+  }
+
+  .timer-route-links button {
+    min-width: 0;
   }
 }
