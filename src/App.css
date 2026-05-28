@@ -5,20 +5,20 @@
 }
 
 .app-shell:not(.timer-shell) {
-  --surface: #1c1c1d;
-  --surface-strong: #242426;
-  --surface-muted: #222224;
-  --ink: #f8f7f9;
-  --muted: #b9b2c2;
-  --line: rgba(116, 104, 128, 0.5);
-  --line-strong: rgba(167, 139, 250, 0.5);
-  --accent: #7c3aed;
-  --accent-strong: #cab1ff;
-  --blue: #a78bfa;
-  --orange: #d2b171;
+  --surface: #0d0a12;
+  --surface-strong: #130f1b;
+  --surface-muted: #181120;
+  --ink: #fbf9ff;
+  --muted: #b9acc8;
+  --line: rgba(192, 38, 255, 0.24);
+  --line-strong: rgba(213, 104, 255, 0.58);
+  --accent: #c026ff;
+  --accent-strong: #e5b7ff;
+  --blue: #22d3ee;
+  --orange: #f5b451;
   --red: #ff8d8d;
-  --purple: #a78bfa;
-  --shadow: 0 34px 86px rgba(115, 54, 180, 0.2);
+  --purple: #d568ff;
+  --shadow: 0 28px 76px rgba(105, 20, 162, 0.24);
 
   min-height: 100vh;
   padding-bottom: 70px;
@@ -30,7 +30,7 @@
   min-height: 100vh;
   padding: 0;
   color: #f7f5f8;
-  background: #1f1f20;
+  background: #050506;
 }
 
 .navbar {
@@ -38,7 +38,7 @@
   grid-template-columns: auto minmax(0, 1fr);
   gap: 18px;
   align-items: center;
-  margin-bottom: 22px;
+  margin-bottom: 20px;
 }
 
 .brand-button {
@@ -69,8 +69,8 @@
 }
 
 .app-shell:not(.timer-shell) .brand-button span {
-  background: #7c3aed;
-  box-shadow: 0 18px 42px rgba(124, 58, 237, 0.36);
+  background: #c026ff;
+  box-shadow: 0 18px 42px rgba(192, 38, 255, 0.38);
 }
 
 .nav-links {
@@ -116,9 +116,9 @@
 }
 
 .app-shell:not(.timer-shell) .nav-links button.active {
-  border-color: rgba(167, 139, 250, 0.32);
-  color: #f3edff;
-  background: rgba(124, 58, 237, 0.2);
+  border-color: rgba(213, 104, 255, 0.42);
+  color: #f8eaff;
+  background: rgba(192, 38, 255, 0.2);
 }
 
 .panel,
@@ -151,7 +151,7 @@
   border-color: var(--line);
   background: var(--surface);
   box-shadow:
-    0 26px 72px rgba(115, 54, 180, 0.16),
+    0 26px 72px rgba(80, 11, 130, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
@@ -160,7 +160,7 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 18px;
   align-items: center;
-  margin-bottom: 18px;
+  margin: 0;
 }
 
 .hero-panel > * {
@@ -168,8 +168,8 @@
 }
 
 .app-shell:not(.timer-shell) .hero-panel {
-  margin: 18px 0 4px;
-  padding: 44px 0 24px;
+  margin: 0;
+  padding: 10px 0 2px;
   border-color: transparent;
   background: transparent;
   box-shadow: none;
@@ -186,8 +186,8 @@
 
 .app-shell:not(.timer-shell) .hero-panel h1 {
   width: 100%;
-  max-width: 760px;
-  font-size: 4rem;
+  max-width: 700px;
+  font-size: 3.4rem;
   font-weight: 500;
   line-height: 1.04;
   overflow-wrap: break-word;
@@ -203,6 +203,7 @@
 
 .app-shell:not(.timer-shell) .hero-panel p {
   width: 100%;
+  max-width: 620px;
   overflow-wrap: break-word;
 }
 
@@ -313,9 +314,9 @@ input::placeholder {
 
 .app-shell:not(.timer-shell) input,
 .app-shell:not(.timer-shell) select {
-  border-color: rgba(116, 104, 128, 0.48);
+  border-color: rgba(192, 38, 255, 0.28);
   color: var(--ink);
-  background: #1d1d1f;
+  background: #0b090f;
 }
 
 .app-shell:not(.timer-shell) input::placeholder {
@@ -335,8 +336,8 @@ input::placeholder {
 }
 
 .app-shell:not(.timer-shell) .primary-button {
-  background: #7c3aed;
-  box-shadow: 0 16px 36px rgba(124, 58, 237, 0.24);
+  background: #c026ff;
+  box-shadow: 0 16px 36px rgba(192, 38, 255, 0.3);
 }
 
 .primary-button:not(:disabled):hover {
@@ -344,7 +345,7 @@ input::placeholder {
 }
 
 .app-shell:not(.timer-shell) .primary-button:not(:disabled):hover {
-  background: #6d28d9;
+  background: #a21caf;
 }
 
 .secondary-button {
@@ -359,7 +360,7 @@ input::placeholder {
 }
 
 .app-shell:not(.timer-shell) .secondary-button:not(:disabled):hover {
-  background: #29252f;
+  background: #1b1225;
 }
 
 .warning-button {
@@ -399,16 +400,18 @@ input::placeholder {
 
 .timer-reference-page {
   min-height: 100vh;
-  background: #1f1f20;
+  padding: 28px 0 0;
+  background: #050506;
 }
 
 .countdown-reference {
   display: grid;
   align-content: start;
-  width: min(calc(100% - 48px), 488px);
-  min-height: 630px;
-  margin: 0 auto;
-  padding: clamp(72px, 16.8vh, 106px) 0 52px;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: clamp(20px, 4vw, 42px) 0 0;
 }
 
 .reference-handle {
@@ -421,9 +424,9 @@ input::placeholder {
 }
 
 .countdown-title {
-  margin: 0 0 39px;
+  margin: 0 0 28px;
   color: #f8f7f9;
-  font-size: clamp(3.6rem, 6.3vw, 4rem);
+  font-size: clamp(3.25rem, 5.6vw, 4.35rem);
   font-weight: 400;
   line-height: 1.16;
   letter-spacing: 0;
@@ -439,12 +442,12 @@ input::placeholder {
   min-height: 218px;
   margin: 0;
   padding: 44px 52px 42px;
-  border: 1px solid rgba(116, 104, 128, 0.58);
+  border: 1px solid rgba(192, 38, 255, 0.3);
   border-radius: 26px;
-  background: #1c1c1d;
+  background: #0d0a12;
   box-shadow:
-    0 42px 78px rgba(115, 54, 180, 0.45),
-    0 0 34px rgba(115, 54, 180, 0.36),
+    0 42px 78px rgba(105, 20, 162, 0.48),
+    0 0 34px rgba(192, 38, 255, 0.26),
     inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
@@ -474,8 +477,9 @@ input::placeholder {
 
 .timer-workflow {
   display: grid;
-  grid-template-columns: minmax(320px, 0.9fr) minmax(420px, 1.1fr);
-  gap: 18px;
+  grid-template-columns: minmax(0, 1.15fr) minmax(340px, 0.85fr);
+  gap: 20px;
+  align-items: start;
   width: min(1180px, calc(100% - 32px));
   margin: 0 auto;
   padding: 0 0 56px;
@@ -487,9 +491,9 @@ input::placeholder {
 
 .timer-shell .panel,
 .timer-shell .break-card {
-  border-color: rgba(116, 104, 128, 0.44);
+  border-color: rgba(192, 38, 255, 0.26);
   color: #f7f5f8;
-  background: #242426;
+  background: #0d0a12;
   box-shadow: 0 20px 58px rgba(0, 0, 0, 0.28);
 }
 
@@ -508,26 +512,27 @@ input::placeholder {
 
 .timer-shell .eyebrow,
 .timer-shell .timer-status {
-  color: #cab1ff;
+  color: #e5b7ff;
 }
 
 .timer-shell .timer-status {
-  border-color: rgba(167, 139, 250, 0.28);
-  background: rgba(124, 58, 237, 0.14);
+  border-color: rgba(213, 104, 255, 0.32);
+  background: rgba(192, 38, 255, 0.14);
 }
 
 .timer-control-panel {
   display: grid;
   gap: 18px;
   align-self: start;
+  margin-top: clamp(20px, 4vw, 42px);
 }
 
 .timer-route-links {
   display: flex;
   gap: 10px;
-  justify-content: center;
+  justify-content: flex-end;
   width: min(1180px, calc(100% - 32px));
-  margin: 0 auto 18px;
+  margin: 0 auto 24px;
 }
 
 .timer-route-links button {
@@ -545,7 +550,7 @@ input::placeholder {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: #a78bfa;
+  background: #c026ff;
 }
 
 .timer-shell .nav-links button,
@@ -554,9 +559,9 @@ input::placeholder {
 .timer-shell select,
 .timer-shell .secondary-button,
 .timer-shell .session-metrics article {
-  border-color: rgba(116, 104, 128, 0.44);
+  border-color: rgba(192, 38, 255, 0.26);
   color: #f7f5f8;
-  background: #1d1d1f;
+  background: #0b090f;
 }
 
 .timer-shell .preset-grid button {
@@ -565,9 +570,9 @@ input::placeholder {
 
 .timer-shell .nav-links button.active,
 .timer-shell .preset-grid button.active {
-  border-color: rgba(167, 139, 250, 0.45);
+  border-color: rgba(213, 104, 255, 0.5);
   color: #f3edff;
-  background: rgba(124, 58, 237, 0.22);
+  background: rgba(192, 38, 255, 0.22);
 }
 
 .timer-shell input::placeholder {
@@ -576,16 +581,16 @@ input::placeholder {
 
 .timer-shell .primary-button {
   color: #ffffff;
-  background: #7c3aed;
+  background: #c026ff;
 }
 
 .timer-shell .primary-button:not(:disabled):hover {
-  background: #6d28d9;
+  background: #a21caf;
 }
 
 .timer-shell .secondary-button:not(:disabled):hover {
-  border-color: rgba(167, 139, 250, 0.56);
-  background: #28242e;
+  border-color: rgba(213, 104, 255, 0.56);
+  background: #1b1225;
 }
 
 .timer-shell .warning-button {
@@ -600,8 +605,8 @@ input::placeholder {
 }
 
 .timer-shell .energy-box {
-  border-color: rgba(167, 139, 250, 0.28);
-  background: rgba(124, 58, 237, 0.14);
+  border-color: rgba(213, 104, 255, 0.3);
+  background: rgba(192, 38, 255, 0.14);
 }
 
 .timer-panel {
@@ -666,7 +671,21 @@ input::placeholder {
 
 .session-panel {
   display: grid;
+  grid-column: 1 / -1;
   gap: 18px;
+}
+
+.study-session-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.study-session-main {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
 }
 
 .form-grid,
@@ -734,6 +753,98 @@ input::placeholder {
   background: rgba(42, 132, 115, 0.08);
 }
 
+.todo-panel {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid rgba(192, 38, 255, 0.26);
+  border-radius: 8px;
+  background: #0b090f;
+}
+
+.todo-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+
+.todo-heading h3 {
+  margin: 0;
+}
+
+.todo-heading .secondary-button {
+  min-height: 36px;
+  padding: 0 12px;
+}
+
+.todo-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 86px;
+  gap: 8px;
+}
+
+.todo-list {
+  display: grid;
+  gap: 8px;
+}
+
+.todo-list > p {
+  margin: 0;
+  padding: 18px;
+  border: 1px dashed rgba(192, 38, 255, 0.26);
+  border-radius: 8px;
+  color: #c7c0ce;
+  text-align: center;
+}
+
+.todo-list article {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  min-height: 52px;
+  padding: 10px;
+  border: 1px solid rgba(192, 38, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.todo-list article.completed {
+  opacity: 0.68;
+}
+
+.todo-list label {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+}
+
+.todo-list input[type='checkbox'] {
+  width: 18px;
+  min-height: 18px;
+  accent-color: #c026ff;
+}
+
+.todo-list span {
+  color: #f7f5f8;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.todo-list article.completed span {
+  color: #9f94aa;
+  text-decoration: line-through;
+}
+
+.todo-list .danger-button {
+  min-height: 34px;
+  padding: 0 10px;
+}
+
 .energy-grid,
 .break-actions,
 .settings-actions {
@@ -772,7 +883,7 @@ input::placeholder {
 
 .app-shell:not(.timer-shell) .goal-card {
   padding: 18px;
-  background: rgba(28, 28, 29, 0.92);
+  background: rgba(13, 10, 18, 0.94);
 }
 
 .goal-card span,
@@ -809,20 +920,144 @@ input::placeholder {
 }
 
 .app-shell:not(.timer-shell) .progress-track span {
-  background: #a78bfa;
+  background: #c026ff;
 }
 
 .stats-grid,
+.overview-grid,
+.metric-grid,
 .charts-grid,
 .insight-grid,
 .badge-grid {
   display: grid;
-  gap: 12px;
+  gap: 16px;
 }
 
 .stats-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  margin-bottom: 24px;
+  margin-bottom: 0;
+}
+
+.overview-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.metric-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.overview-card,
+.metric-card {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow:
+    0 26px 72px rgba(80, 11, 130, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.overview-card {
+  display: grid;
+  align-content: start;
+  min-height: 206px;
+  padding: 20px;
+}
+
+.overview-card h2 {
+  margin: 0;
+  font-size: 1.45rem;
+  line-height: 1.12;
+  overflow-wrap: anywhere;
+}
+
+.overview-card p {
+  margin: 12px 0 0;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.overview-card .eyebrow {
+  margin: 0 0 10px;
+}
+
+.overview-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 18px 0 0;
+}
+
+.overview-facts div {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid rgba(192, 38, 255, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.overview-facts dt {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.overview-facts dd {
+  margin: 4px 0 0;
+  color: var(--ink);
+  font-size: 1.05rem;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+
+.daily-goal-card .progress-track {
+  height: 10px;
+  margin: 18px 0 12px;
+}
+
+.metric-card {
+  display: grid;
+  grid-template-rows: auto minmax(112px, 1fr);
+  gap: 14px;
+  min-height: 250px;
+  padding: 18px;
+}
+
+.metric-card-copy {
+  min-width: 0;
+}
+
+.metric-card-copy p {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.metric-card-copy strong {
+  display: block;
+  color: var(--ink);
+  font-size: 1.65rem;
+  font-weight: 550;
+  line-height: 1.08;
+  overflow-wrap: anywhere;
+}
+
+.metric-card-copy span {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.metric-chart {
+  min-height: 112px;
+}
+
+.metric-card .chart-empty {
+  height: 112px;
 }
 
 .stat-card {
@@ -867,23 +1102,41 @@ input::placeholder {
 .app-shell:not(.timer-shell) .tone-green,
 .app-shell:not(.timer-shell) .tone-blue,
 .app-shell:not(.timer-shell) .tone-orange {
-  border-color: rgba(167, 139, 250, 0.24);
+  border-color: rgba(192, 38, 255, 0.24);
 }
 
 .insight-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin-bottom: 24px;
+  margin-bottom: 0;
 }
 
 .charts-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
-  margin-bottom: 24px;
+  margin-bottom: 0;
+}
+
+.chart-card {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.chart-card-header {
+  display: grid;
+  gap: 5px;
+  margin-bottom: 18px;
 }
 
 .chart-card h3 {
-  margin-bottom: 24px;
+  margin: 0;
   font-weight: 600;
+}
+
+.chart-card-header p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 
 .chart-empty {
@@ -898,8 +1151,30 @@ input::placeholder {
 }
 
 .app-shell:not(.timer-shell) .chart-empty {
-  border-color: rgba(167, 139, 250, 0.22);
+  border-color: rgba(192, 38, 255, 0.24);
   background: rgba(255, 255, 255, 0.03);
+}
+
+.insight-summary {
+  display: grid;
+  align-content: center;
+  min-height: 260px;
+}
+
+.insight-summary .eyebrow {
+  margin-bottom: 12px;
+}
+
+.insight-summary h2 {
+  font-size: clamp(2rem, 4vw, 3.1rem);
+  overflow-wrap: anywhere;
+}
+
+.insight-summary span {
+  display: block;
+  margin-top: 14px;
+  color: var(--muted);
+  font-weight: 650;
 }
 
 .recharts-cartesian-axis-tick-value,
@@ -930,8 +1205,8 @@ input::placeholder {
 }
 
 .badge-grid article.earned {
-  border-color: rgba(167, 139, 250, 0.36);
-  background: rgba(124, 58, 237, 0.14);
+  border-color: rgba(213, 104, 255, 0.4);
+  background: rgba(192, 38, 255, 0.15);
   opacity: 1;
 }
 
@@ -954,7 +1229,7 @@ input::placeholder {
 .settings-page,
 .dashboard-page {
   display: grid;
-  gap: 24px;
+  gap: 20px;
 }
 
 .filter-panel {
@@ -1007,7 +1282,7 @@ input::placeholder {
 
 .status-badge.completed {
   color: var(--accent-strong);
-  background: rgba(124, 58, 237, 0.16);
+  background: rgba(192, 38, 255, 0.16);
 }
 
 .status-badge.incomplete {
@@ -1064,7 +1339,7 @@ select:focus-visible {
 .app-shell:not(.timer-shell) button:focus-visible,
 .app-shell:not(.timer-shell) input:focus-visible,
 .app-shell:not(.timer-shell) select:focus-visible {
-  outline-color: rgba(167, 139, 250, 0.3);
+  outline-color: rgba(213, 104, 255, 0.34);
 }
 
 @media (max-width: 980px) {
@@ -1072,10 +1347,19 @@ select:focus-visible {
   .timer-workflow,
   .hero-panel,
   .stats-grid,
+  .metric-grid,
   .insight-grid,
   .charts-grid,
   .badge-grid {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .session-panel {
+    grid-column: 1 / -1;
+  }
+
+  .app-shell:not(.timer-shell) .hero-panel {
+    grid-template-columns: 1fr;
   }
 
   .timer-panel {
@@ -1093,7 +1377,7 @@ select:focus-visible {
 
 @media (max-width: 760px) {
   .app-shell {
-    width: min(calc(100% - 20px), 1180px);
+    width: min(calc(100% - 24px), 1180px);
     padding-top: 14px;
   }
 
@@ -1102,17 +1386,24 @@ select:focus-visible {
     padding-top: 0;
   }
 
+  .timer-reference-page {
+    overflow-x: hidden;
+  }
+
   .navbar,
   .page-grid,
   .timer-workflow,
   .hero-panel,
   .stats-grid,
+  .overview-grid,
+  .metric-grid,
   .insight-grid,
   .charts-grid,
   .badge-grid,
   .form-grid,
   .filter-panel,
   .settings-form,
+  .study-session-grid,
   .focus-actions,
   .timer-actions,
   .session-metrics,
@@ -1148,6 +1439,14 @@ select:focus-visible {
     padding: 16px;
   }
 
+  .app-shell:not(.timer-shell) .hero-panel {
+    padding: 4px 0 0;
+  }
+
+  .overview-facts {
+    grid-template-columns: 1fr;
+  }
+
   .timer-face {
     margin: 24px auto 20px;
   }
@@ -1165,10 +1464,11 @@ select:focus-visible {
   }
 
   .countdown-reference {
-    width: min(100%, 390px);
-    min-height: 592px;
+    width: 100%;
+    max-width: 344px;
+    min-height: 0;
     margin: 0;
-    padding: 70px 16px 46px;
+    padding: 0;
   }
 
   .reference-handle {
@@ -1176,13 +1476,15 @@ select:focus-visible {
   }
 
   .countdown-title {
-    margin-bottom: 34px;
-    font-size: clamp(2.5rem, 10.6vw, 3rem);
+    margin-bottom: 22px;
+    font-size: clamp(2.2rem, 9.4vw, 2.75rem);
+    overflow-wrap: anywhere;
   }
 
   .countdown-card {
-    justify-self: center;
-    width: min(100%, 346px);
+    justify-self: stretch;
+    width: 100%;
+    max-width: 344px;
     min-height: 190px;
     padding: 38px 16px 36px;
     border-radius: 24px;
@@ -1197,22 +1499,38 @@ select:focus-visible {
   }
 
   .timer-workflow {
-    width: 370px;
-    max-width: calc(100% - 20px);
-    margin-right: 10px;
-    margin-left: 10px;
+    width: min(344px, calc(100% - 32px));
+    max-width: 344px;
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .timer-control-panel {
+    width: 100%;
+    max-width: 344px;
+    margin-top: 0;
   }
 
   .timer-route-links {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    width: 370px;
-    max-width: calc(100% - 20px);
-    margin-right: 10px;
-    margin-left: 10px;
+    gap: 8px;
+    width: min(344px, calc(100% - 32px));
+    max-width: 344px;
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .todo-heading,
+  .todo-form,
+  .todo-list article {
+    grid-template-columns: 1fr;
   }
 
   .timer-route-links button {
     min-width: 0;
+    width: 100%;
+    padding: 0 8px;
+    font-size: 0.9rem;
   }
 }

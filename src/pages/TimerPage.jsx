@@ -9,6 +9,7 @@ const timerNavItems = [
   { id: 'history', label: 'History' },
   { id: 'settings', label: 'Settings' },
 ]
+const todoStorageKey = 'focusflow:todos'
 
 const formatSeconds = (seconds) => {
   const mins = Math.floor(seconds / 60)
@@ -21,6 +22,21 @@ const formatTimePart = (value) => String(value).padStart(2, '0')
 
 const createSessionId = () =>
   `session-${Date.now()}-${Math.random().toString(16).slice(2)}`
+
+const createTodoId = () =>
+  `todo-${Date.now()}-${Math.random().toString(16).slice(2)}`
+
+const loadTodos = () => {
+  if (typeof window === 'undefined') return []
+
+  try {
+    const savedTodos = window.localStorage.getItem(todoStorageKey)
+    const parsedTodos = savedTodos ? JSON.parse(savedTodos) : []
+    return Array.isArray(parsedTodos) ? parsedTodos : []
+  } catch {
+    return []
+  }
+}
 
 const playSessionTone = () => {
   const AudioContext = window.AudioContext || window.webkitAudioContext
@@ -53,6 +69,8 @@ function TimerPage({ settings, onNavigate, onSaveSession }) {
   const [startedAt, setStartedAt] = useState(null)
   const [pendingSession, setPendingSession] = useState(null)
   const [showBreak, setShowBreak] = useState(false)
+  const [todoDraft, setTodoDraft] = useState('')
+  const [todos, setTodos] = useState(loadTodos)
 
   const plannedMinutes = useMemo(() => {
     const value = Number(selectedMinutes === 'custom' ? customMinutes : selectedMinutes)
@@ -91,6 +109,10 @@ function TimerPage({ settings, onNavigate, onSaveSession }) {
 
     return () => window.clearInterval(timer)
   }, [isRunning])
+
+  useEffect(() => {
+    window.localStorage.setItem(todoStorageKey, JSON.stringify(todos))
+  }, [todos])
 
   const resetTimer = (nextMinutes = plannedMinutes) => {
     setIsRunning(false)
@@ -174,28 +196,39 @@ function TimerPage({ settings, onNavigate, onSaveSession }) {
     setShowBreak(session.completed)
   }
 
+  const addTodo = (event) => {
+    event.preventDefault()
+
+    const label = todoDraft.trim()
+    if (!label) return
+
+    setTodos((currentTodos) => [
+      ...currentTodos,
+      { id: createTodoId(), label, completed: false },
+    ])
+    setTodoDraft('')
+  }
+
+  const toggleTodo = (id) => {
+    setTodos((currentTodos) =>
+      currentTodos.map((todo) =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo,
+      ),
+    )
+  }
+
+  const deleteTodo = (id) => {
+    setTodos((currentTodos) => currentTodos.filter((todo) => todo.id !== id))
+  }
+
+  const clearCompletedTodos = () => {
+    setTodos((currentTodos) => currentTodos.filter((todo) => !todo.completed))
+  }
+
+  const completedTodos = todos.filter((todo) => todo.completed).length
+
   return (
     <div className="timer-reference-page">
-      <section className="countdown-reference" aria-label="Focus countdown">
-ç        <h1 className="countdown-title">
-          Countdown timer
-          <br />
-          Variables
-        </h1>
-
-        <dl
-          className="countdown-card"
-          aria-label={`${formatSeconds(timeLeft)} remaining`}
-        >
-          {countdownParts.map((part) => (
-            <div className="countdown-part" key={part.label}>
-              <dt>{part.label}</dt>
-              <dd>{part.value}</dd>
-            </div>
-          ))}
-        </dl>
-      </section>
-
       <nav className="timer-route-links" aria-label="FocusFlow navigation">
         {timerNavItems.map((item) => (
           <button
@@ -210,6 +243,26 @@ function TimerPage({ settings, onNavigate, onSaveSession }) {
       </nav>
 
       <div className="timer-workflow">
+        <section className="countdown-reference" aria-label="Focus countdown">
+          <h1 className="countdown-title">
+            Countdown timer
+            <br />
+            Variables
+          </h1>
+
+          <dl
+            className="countdown-card"
+            aria-label={`${formatSeconds(timeLeft)} remaining`}
+          >
+            {countdownParts.map((part) => (
+              <div className="countdown-part" key={part.label}>
+                <dt>{part.label}</dt>
+                <dd>{part.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
         <section className="panel timer-control-panel" aria-label="Timer controls">
           <div className="panel-heading">
             <div>
@@ -296,65 +349,129 @@ function TimerPage({ settings, onNavigate, onSaveSession }) {
             </div>
           </div>
 
-          <div className="form-grid">
-            <label className="field">
-              <span>Subject</span>
-              <input
-                value={subject}
-                onChange={(event) => setSubject(event.target.value)}
-                placeholder="Math, Biology, Computer Science"
-              />
-            </label>
-            <label className="field">
-              <span>Task</span>
-              <input
-                value={task}
-                onChange={(event) => setTask(event.target.value)}
-                placeholder="Read chapter 4"
-              />
-            </label>
-          </div>
+          <div className="study-session-grid">
+            <div className="study-session-main">
+              <div className="form-grid">
+                <label className="field">
+                  <span>Subject</span>
+                  <input
+                    value={subject}
+                    onChange={(event) => setSubject(event.target.value)}
+                    placeholder="Math, Biology, Computer Science"
+                  />
+                </label>
+                <label className="field">
+                  <span>Task</span>
+                  <input
+                    value={task}
+                    onChange={(event) => setTask(event.target.value)}
+                    placeholder="Read chapter 4"
+                  />
+                </label>
+              </div>
 
-          <div className="session-metrics">
-            <article>
-              <span>Planned</span>
-              <strong>{plannedMinutes} min</strong>
-            </article>
-            <article>
-              <span>Actual</span>
-              <strong>{Math.floor(elapsedSeconds / 60)} min</strong>
-            </article>
-            <article>
-              <span>Distractions</span>
-              <strong>{distractions}</strong>
-            </article>
-          </div>
+              <div className="session-metrics">
+                <article>
+                  <span>Planned</span>
+                  <strong>{plannedMinutes} min</strong>
+                </article>
+                <article>
+                  <span>Actual</span>
+                  <strong>{Math.floor(elapsedSeconds / 60)} min</strong>
+                </article>
+                <article>
+                  <span>Distractions</span>
+                  <strong>{distractions}</strong>
+                </article>
+              </div>
 
-          <div className="focus-actions">
-            <button
-              className="warning-button"
-              type="button"
-              onClick={() => setDistractions((count) => count + 1)}
-              disabled={!hasStarted}
-            >
-              I got distracted
-            </button>
-            <button
-              className="secondary-button"
-              type="button"
-              onClick={() => requestEnergyBeforeSave(false)}
-              disabled={!hasStarted}
-            >
-              Stop Session
-            </button>
-            <button
-              className="primary-button"
-              type="button"
-              onClick={() => requestEnergyBeforeSave(true)}
-              disabled={!hasStarted}
-            >
-              Complete Session
-            </button>
+              <div className="focus-actions">
+                <button
+                  className="warning-button"
+                  type="button"
+                  onClick={() => setDistractions((count) => count + 1)}
+                  disabled={!hasStarted}
+                >
+                  I got distracted
+                </button>
+                <button
+                  className="secondary-button"
+                  type="button"
+                  onClick={() => requestEnergyBeforeSave(false)}
+                  disabled={!hasStarted}
+                >
+                  Stop Session
+                </button>
+                <button
+                  className="primary-button"
+                  type="button"
+                  onClick={() => requestEnergyBeforeSave(true)}
+                  disabled={!hasStarted}
+                >
+                  Complete Session
+                </button>
+              </div>
+            </div>
+
+            <aside className="todo-panel" aria-label="Session to-do list">
+              <div className="todo-heading">
+                <div>
+                  <p className="eyebrow">To-do list</p>
+                  <h3>
+                    {completedTodos}/{todos.length} complete
+                  </h3>
+                </div>
+                <button
+                  className="secondary-button"
+                  type="button"
+                  onClick={clearCompletedTodos}
+                  disabled={completedTodos === 0}
+                >
+                  Clear done
+                </button>
+              </div>
+
+              <form className="todo-form" onSubmit={addTodo}>
+                <input
+                  value={todoDraft}
+                  onChange={(event) => setTodoDraft(event.target.value)}
+                  placeholder="Add a study task"
+                />
+                <button className="primary-button" type="submit">
+                  Add
+                </button>
+              </form>
+
+              <div className="todo-list">
+                {todos.length ? (
+                  todos.map((todo) => (
+                    <article
+                      className={todo.completed ? 'completed' : ''}
+                      key={todo.id}
+                    >
+                      <label>
+                        <input
+                          checked={todo.completed}
+                          type="checkbox"
+                          onChange={() => toggleTodo(todo.id)}
+                        />
+                        <span>{todo.label}</span>
+                      </label>
+                      <button
+                        className="danger-button"
+                        type="button"
+                        onClick={() => deleteTodo(todo.id)}
+                        aria-label={`Delete ${todo.label}`}
+                      >
+                        Delete
+                      </button>
+                    </article>
+                  ))
+                ) : (
+                  <p>No tasks yet.</p>
+                )}
+              </div>
+            </aside>
           </div>
 
           {pendingSession ? (

@@ -1,4 +1,6 @@
 import {
+  Area,
+  AreaChart,
   Bar,
   BarChart,
   Cell,
@@ -11,7 +13,6 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import StatCard from '../components/StatCard'
 import {
   getAchievementBadges,
   getCompletionSplit,
@@ -22,15 +23,16 @@ import {
 } from '../utils/analytics'
 import { formatMinutes } from '../utils/dateHelpers'
 
-const chartColors = ['#a78bfa', '#f5f0ff', '#746880', '#c9b8ff']
+const chartColors = ['#c026ff', '#d568ff', '#22d3ee', '#f5b451']
 const tooltipStyle = {
-  border: '1px solid rgba(167, 139, 250, 0.28)',
-  borderRadius: 12,
-  background: '#242426',
-  color: '#f8f7f9',
+  border: '1px solid rgba(192, 38, 255, 0.36)',
+  borderRadius: 8,
+  background: '#0f0b15',
+  color: '#fbf9ff',
 }
-const tooltipLabelStyle = { color: '#cab1ff' }
-const tooltipCursor = { fill: 'rgba(167, 139, 250, 0.08)' }
+const tooltipLabelStyle = { color: '#e5b7ff' }
+const tooltipCursor = { fill: 'rgba(192, 38, 255, 0.1)' }
+const axisTick = { fill: '#b9acc8', fontSize: 12 }
 
 function EmptyChart({ label }) {
   return (
@@ -40,11 +42,27 @@ function EmptyChart({ label }) {
   )
 }
 
-function ChartCard({ title, children }) {
+function ChartCard({ title, detail, children }) {
   return (
     <article className="chart-card">
-      <h3>{title}</h3>
+      <div className="chart-card-header">
+        <h3>{title}</h3>
+        {detail ? <p>{detail}</p> : null}
+      </div>
       {children}
+    </article>
+  )
+}
+
+function MetricGraphCard({ title, value, detail, children }) {
+  return (
+    <article className="metric-card">
+      <div className="metric-card-copy">
+        <p>{title}</p>
+        <strong>{value}</strong>
+        <span>{detail}</span>
+      </div>
+      <div className="metric-chart">{children}</div>
     </article>
   )
 }
@@ -56,10 +74,31 @@ function DashboardPage({ sessions, settings }) {
   const completionSplit = getCompletionSplit(sessions)
   const distractionsByDay = getDistractionsByDay(sessions)
   const badges = getAchievementBadges(sessions)
+  const hasDistractions = distractionsByDay.some((item) => item.distractions > 0)
+  const totalWeekSessions = completionSplit.reduce(
+    (total, item) => total + item.value,
+    0,
+  )
+  const latestSession = sessions
+    .slice()
+    .sort((a, b) => new Date(b.startTime) - new Date(a.startTime))[0]
+  const dailyGoalMinutes = Math.max(1, Number(settings.dailyFocusGoalMinutes) || 1)
+  const remainingGoalMinutes = Math.max(
+    dailyGoalMinutes - stats.totalFocusToday,
+    0,
+  )
+  const goalChartData = [
+    {
+      label: 'Today',
+      focused: stats.totalFocusToday,
+      remaining: remainingGoalMinutes,
+    },
+  ]
   const goalPercent = Math.min(
     100,
-    Math.round((stats.totalFocusToday / settings.dailyFocusGoalMinutes) * 100) || 0,
+    Math.round((stats.totalFocusToday / dailyGoalMinutes) * 100) || 0,
   )
+  const goalDomainMax = Math.max(dailyGoalMinutes, stats.totalFocusToday, 1)
 
   return (
     <div className="dashboard-page">
@@ -68,83 +107,217 @@ function DashboardPage({ sessions, settings }) {
           <p className="eyebrow">Dashboard</p>
           <h1>Productivity analytics</h1>
           <p>
-            {formatMinutes(stats.totalFocusWeek)} focused this week across{' '}
-            {stats.completedWeek} completed sessions. Best subject:{' '}
-            {stats.bestSubject.label}. Best time: {stats.bestFocusTime.label}.
+            Today&apos;s goal, current activity, and weekly focus patterns in one
+            clear view.
           </p>
         </div>
-        <div className="goal-card">
-          <span>Daily goal</span>
-          <strong>{goalPercent}%</strong>
+      </section>
+
+      <section className="overview-grid" aria-label="User and activity overview">
+        <article className="overview-card">
+          <p className="eyebrow">User info</p>
+          <h2>
+            {stats.bestSubject.label === 'No data yet'
+              ? 'New focus profile'
+              : stats.bestSubject.label}
+          </h2>
+          <dl className="overview-facts">
+            <div>
+              <dt>Total sessions</dt>
+              <dd>{sessions.length}</dd>
+            </div>
+            <div>
+              <dt>Current streak</dt>
+              <dd>{stats.streak} days</dd>
+            </div>
+          </dl>
+        </article>
+
+        <article className="overview-card daily-goal-card">
+          <p className="eyebrow">Daily goal</p>
+          <h2>{goalPercent}% complete</h2>
           <div className="progress-track" aria-label="Daily focus goal progress">
             <span style={{ width: `${goalPercent}%` }}></span>
           </div>
           <p>
-            {formatMinutes(stats.totalFocusToday)} of{' '}
-            {formatMinutes(settings.dailyFocusGoalMinutes)}
+            {formatMinutes(stats.totalFocusToday)} focused,{' '}
+            {formatMinutes(remainingGoalMinutes)} left.
           </p>
-        </div>
+        </article>
+
+        <article className="overview-card">
+          <p className="eyebrow">Activity</p>
+          <h2>{latestSession ? latestSession.subject : 'No session yet'}</h2>
+          <p>
+            {latestSession
+              ? `${latestSession.task} - ${formatMinutes(latestSession.actualMinutes)} logged`
+              : 'No saved activity yet.'}
+          </p>
+          <dl className="overview-facts">
+            <div>
+              <dt>Today</dt>
+              <dd>{stats.completedToday} done</dd>
+            </div>
+            <div>
+              <dt>This week</dt>
+              <dd>{stats.completedWeek} done</dd>
+            </div>
+          </dl>
+        </article>
       </section>
 
-      <section className="stats-grid" aria-label="Focus statistics">
-        <StatCard
-          label="Today"
+      <section className="metric-grid" aria-label="Productivity graphs">
+        <MetricGraphCard
+          title="Daily focus goal"
           value={formatMinutes(stats.totalFocusToday)}
-          tone="green"
-        />
-        <StatCard
-          label="This week"
+          detail={`${formatMinutes(dailyGoalMinutes)} target`}
+        >
+          <ResponsiveContainer width="100%" height={112}>
+            <BarChart
+              data={goalChartData}
+              layout="vertical"
+              margin={{ bottom: 12, left: 0, right: 0, top: 12 }}
+            >
+              <XAxis type="number" hide domain={[0, goalDomainMax]} />
+              <YAxis dataKey="label" type="category" hide />
+              <Tooltip
+                contentStyle={tooltipStyle}
+                cursor={tooltipCursor}
+                labelStyle={tooltipLabelStyle}
+              />
+              <Bar
+                dataKey="focused"
+                fill="#c026ff"
+                radius={[8, 0, 0, 8]}
+                stackId="goal"
+              />
+              <Bar
+                dataKey="remaining"
+                fill="#241a2e"
+                radius={[0, 8, 8, 0]}
+                stackId="goal"
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </MetricGraphCard>
+
+        <MetricGraphCard
+          title="Focus trend"
           value={formatMinutes(stats.totalFocusWeek)}
-          tone="blue"
-        />
-        <StatCard label="Sessions today" value={stats.completedToday} />
-        <StatCard
-          label="Sessions this week"
-          value={stats.completedWeek}
-        />
-        <StatCard
-          label="Distractions today"
-          value={stats.totalDistractionsToday}
-          tone="orange"
-        />
-        <StatCard
-          label="Avg. distractions"
-          value={stats.averageDistractions}
-        />
-        <StatCard
-          label="Success rate"
+          detail="Last 7 days"
+        >
+          <ResponsiveContainer width="100%" height={112}>
+            <AreaChart data={focusByDay} margin={{ bottom: 8, left: 0, right: 0, top: 8 }}>
+              <XAxis dataKey="day" hide />
+              <YAxis hide />
+              <Tooltip
+                contentStyle={tooltipStyle}
+                cursor={tooltipCursor}
+                labelStyle={tooltipLabelStyle}
+              />
+              <Area
+                dataKey="minutes"
+                fill="#c026ff"
+                fillOpacity={0.24}
+                stroke="#d568ff"
+                strokeWidth={3}
+                type="monotone"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </MetricGraphCard>
+
+        <MetricGraphCard
+          title="Completion rate"
           value={`${stats.successRate}%`}
-          tone="green"
-        />
-        <StatCard label="Current streak" value={`${stats.streak} days`} />
-      </section>
-
-      <section className="insight-grid">
-        <article className="panel">
-          <p className="eyebrow">Best subject this week</p>
-          <h2>{stats.bestSubject.label}</h2>
-          <p>Total time: {formatMinutes(stats.bestSubject.totalMinutes)}</p>
-        </article>
-        <article className="panel">
-          <p className="eyebrow">Best focus time</p>
-          <h2>{stats.bestFocusTime.label}</h2>
-          <p>Based on when your weekly sessions started.</p>
-        </article>
-      </section>
-
-      <section className="charts-grid" aria-label="Charts">
-        <ChartCard title="By subject">
-          {focusBySubject.length ? (
-            <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={focusBySubject}>
-                <XAxis dataKey="subject" axisLine={false} tickLine={false} />
-                <YAxis axisLine={false} tickLine={false} />
+          detail={
+            totalWeekSessions
+              ? `${stats.completedWeek} of ${totalWeekSessions} sessions`
+              : 'No sessions this week'
+          }
+        >
+          {totalWeekSessions ? (
+            <ResponsiveContainer width="100%" height={112}>
+              <PieChart>
+                <Pie
+                  data={completionSplit}
+                  dataKey="value"
+                  innerRadius={28}
+                  nameKey="name"
+                  outerRadius={48}
+                  paddingAngle={3}
+                >
+                  {completionSplit.map((entry, index) => (
+                    <Cell
+                      fill={chartColors[index % chartColors.length]}
+                      key={entry.name}
+                    />
+                  ))}
+                </Pie>
                 <Tooltip
                   contentStyle={tooltipStyle}
                   cursor={tooltipCursor}
                   labelStyle={tooltipLabelStyle}
                 />
-                <Bar dataKey="minutes" radius={[8, 8, 0, 0]} fill="#a78bfa" />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <EmptyChart label="No sessions this week." />
+          )}
+        </MetricGraphCard>
+
+        <MetricGraphCard
+          title="Distraction load"
+          value={`${stats.averageDistractions} avg`}
+          detail={`${stats.totalDistractionsToday} distractions today`}
+        >
+          {hasDistractions ? (
+            <ResponsiveContainer width="100%" height={112}>
+              <BarChart
+                data={distractionsByDay}
+                margin={{ bottom: 8, left: 0, right: 0, top: 8 }}
+              >
+                <XAxis dataKey="day" hide />
+                <YAxis hide />
+                <Tooltip
+                  contentStyle={tooltipStyle}
+                  cursor={tooltipCursor}
+                  labelStyle={tooltipLabelStyle}
+                />
+                <Bar
+                  dataKey="distractions"
+                  fill="#22d3ee"
+                  radius={[8, 8, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <EmptyChart label="No distractions this week." />
+          )}
+        </MetricGraphCard>
+      </section>
+
+      <section className="charts-grid" aria-label="Charts">
+        <ChartCard
+          title="Focus by subject"
+          detail="Where your time is going this week."
+        >
+          {focusBySubject.length ? (
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={focusBySubject}>
+                <XAxis
+                  dataKey="subject"
+                  axisLine={false}
+                  tick={axisTick}
+                  tickLine={false}
+                />
+                <YAxis axisLine={false} tick={axisTick} tickLine={false} />
+                <Tooltip
+                  contentStyle={tooltipStyle}
+                  cursor={tooltipCursor}
+                  labelStyle={tooltipLabelStyle}
+                />
+                <Bar dataKey="minutes" radius={[8, 8, 0, 0]} fill="#c026ff" />
               </BarChart>
             </ResponsiveContainer>
           ) : (
@@ -152,11 +325,14 @@ function DashboardPage({ sessions, settings }) {
           )}
         </ChartCard>
 
-        <ChartCard title="By day">
+        <ChartCard
+          title="Focus by day"
+          detail="A simple view of your 7-day rhythm."
+        >
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={focusByDay}>
-              <XAxis dataKey="day" axisLine={false} tickLine={false} />
-              <YAxis axisLine={false} tickLine={false} />
+              <XAxis dataKey="day" axisLine={false} tick={axisTick} tickLine={false} />
+              <YAxis axisLine={false} tick={axisTick} tickLine={false} />
               <Tooltip
                 contentStyle={tooltipStyle}
                 cursor={tooltipCursor}
@@ -164,16 +340,46 @@ function DashboardPage({ sessions, settings }) {
               />
               <Line
                 dataKey="minutes"
-                stroke="#cab1ff"
+                stroke="#d568ff"
                 strokeWidth={3}
                 type="monotone"
-                dot={{ fill: '#1f1f20', r: 4, stroke: '#cab1ff', strokeWidth: 2 }}
+                dot={{ fill: '#09070d', r: 4, stroke: '#d568ff', strokeWidth: 2 }}
               />
             </LineChart>
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Completion">
+        <ChartCard
+          title="Best subject"
+          detail="The subject getting the most focused minutes."
+        >
+          <article className="insight-summary">
+            <p className="eyebrow">Top subject</p>
+            <h2>{stats.bestSubject.label}</h2>
+            <span>
+              {formatMinutes(stats.bestSubject.totalMinutes)} focused this week.
+            </span>
+          </article>
+        </ChartCard>
+
+        <ChartCard
+          title="Best focus window"
+          detail="When your strongest sessions usually start."
+        >
+          <article className="insight-summary">
+            <p className="eyebrow">Best time</p>
+            <h2>{stats.bestFocusTime.label}</h2>
+            <span>
+              {formatMinutes(stats.bestFocusTime.totalMinutes)} focused in this
+              time window.
+            </span>
+          </article>
+        </ChartCard>
+
+        <ChartCard
+          title="Completion split"
+          detail="Completed sessions versus stopped sessions."
+        >
           {completionSplit.some((item) => item.value > 0) ? (
             <ResponsiveContainer width="100%" height={260}>
               <PieChart>
@@ -203,11 +409,19 @@ function DashboardPage({ sessions, settings }) {
           )}
         </ChartCard>
 
-        <ChartCard title="Distractions">
+        <ChartCard
+          title="Distractions by day"
+          detail="Daily interruption patterns across the week."
+        >
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={distractionsByDay}>
-              <XAxis dataKey="day" axisLine={false} tickLine={false} />
-              <YAxis allowDecimals={false} axisLine={false} tickLine={false} />
+              <XAxis dataKey="day" axisLine={false} tick={axisTick} tickLine={false} />
+              <YAxis
+                allowDecimals={false}
+                axisLine={false}
+                tick={axisTick}
+                tickLine={false}
+              />
               <Tooltip
                 contentStyle={tooltipStyle}
                 cursor={tooltipCursor}
@@ -216,7 +430,7 @@ function DashboardPage({ sessions, settings }) {
               <Bar
                 dataKey="distractions"
                 radius={[8, 8, 0, 0]}
-                fill="#746880"
+                fill="#22d3ee"
               />
             </BarChart>
           </ResponsiveContainer>
