@@ -177,8 +177,7 @@ function TimerPage({ settings, onNavigate, onSaveSession }) {
   return (
     <div className="timer-reference-page">
       <section className="countdown-reference" aria-label="Focus countdown">
-        <p className="reference-handle">@temmahuay</p>
-        <h1 className="countdown-title">
+ç        <h1 className="countdown-title">
           Countdown timer
           <br />
           Variables

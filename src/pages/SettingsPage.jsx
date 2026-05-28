@@ -23,14 +23,14 @@ function SettingsPage({ settings, onSaveSettings }) {
       <section className="hero-panel">
         <div>
           <p className="eyebrow">Settings</p>
-          <h1>Focus preferences</h1>
-          <p>Set your default timers, daily goal, notification tone, and theme.</p>
+          <h1>Preferences</h1>
+          <p>Choose default timing, daily focus target, sound, and appearance.</p>
         </div>
       </section>
 
       <form className="panel settings-form" onSubmit={saveSettings}>
         <label className="field">
-          <span>Default focus time</span>
+          <span>Focus duration</span>
           <input
             min="1"
             type="number"
@@ -42,7 +42,7 @@ function SettingsPage({ settings, onSaveSettings }) {
         </label>
 
         <label className="field">
-          <span>Default break time</span>
+          <span>Break duration</span>
           <input
             min="1"
             type="number"
@@ -54,7 +54,7 @@ function SettingsPage({ settings, onSaveSettings }) {
         </label>
 
         <label className="field">
-          <span>Daily focus goal</span>
+          <span>Daily goal</span>
           <input
             min="1"
             type="number"
@@ -66,7 +66,7 @@ function SettingsPage({ settings, onSaveSettings }) {
         </label>
 
         <label className="field">
-          <span>Theme</span>
+          <span>Appearance</span>
           <select
             value={draft.theme}
             onChange={(event) => updateDraft('theme', event.target.value)}
@@ -82,19 +82,19 @@ function SettingsPage({ settings, onSaveSettings }) {
             type="checkbox"
             onChange={(event) => updateDraft('soundEnabled', event.target.checked)}
           />
-          <span>Sound on session save</span>
+          <span>Save sound</span>
         </label>
 
         <div className="settings-actions">
           <button className="primary-button" type="submit">
-            Save Settings
+            Save
           </button>
           <button
             className="secondary-button"
             type="button"
             onClick={() => setDraft(defaultSettings)}
           >
-            Reset Defaults
+            Reset
           </button>
         </div>
       </form>

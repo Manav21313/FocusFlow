@@ -1,7 +1,6 @@
 import {
   Bar,
   BarChart,
-  CartesianGrid,
   Cell,
   Line,
   LineChart,
@@ -23,7 +22,15 @@ import {
 } from '../utils/analytics'
 import { formatMinutes } from '../utils/dateHelpers'
 
-const chartColors = ['#2a8473', '#2563eb', '#d78b1f', '#dc2626', '#7c3aed']
+const chartColors = ['#a78bfa', '#f5f0ff', '#746880', '#c9b8ff']
+const tooltipStyle = {
+  border: '1px solid rgba(167, 139, 250, 0.28)',
+  borderRadius: 12,
+  background: '#242426',
+  color: '#f8f7f9',
+}
+const tooltipLabelStyle = { color: '#cab1ff' }
+const tooltipCursor = { fill: 'rgba(167, 139, 250, 0.08)' }
 
 function EmptyChart({ label }) {
   return (
@@ -61,10 +68,9 @@ function DashboardPage({ sessions, settings }) {
           <p className="eyebrow">Dashboard</p>
           <h1>Productivity analytics</h1>
           <p>
-            This week you focused for {formatMinutes(stats.totalFocusWeek)}. Your
-            best subject was {stats.bestSubject.label}. Your best focus time was{' '}
-            {stats.bestFocusTime.label}. You completed {stats.completedWeek} focus
-            sessions.
+            {formatMinutes(stats.totalFocusWeek)} focused this week across{' '}
+            {stats.completedWeek} completed sessions. Best subject:{' '}
+            {stats.bestSubject.label}. Best time: {stats.bestFocusTime.label}.
           </p>
         </div>
         <div className="goal-card">
@@ -82,33 +88,32 @@ function DashboardPage({ sessions, settings }) {
 
       <section className="stats-grid" aria-label="Focus statistics">
         <StatCard
-          label="Total focus time today"
+          label="Today"
           value={formatMinutes(stats.totalFocusToday)}
           tone="green"
         />
         <StatCard
-          label="Total focus time this week"
+          label="This week"
           value={formatMinutes(stats.totalFocusWeek)}
           tone="blue"
         />
-        <StatCard label="Completed sessions today" value={stats.completedToday} />
+        <StatCard label="Sessions today" value={stats.completedToday} />
         <StatCard
-          label="Completed sessions this week"
+          label="Sessions this week"
           value={stats.completedWeek}
         />
         <StatCard
-          label="Total distractions today"
+          label="Distractions today"
           value={stats.totalDistractionsToday}
           tone="orange"
         />
         <StatCard
-          label="Average distractions per session"
+          label="Avg. distractions"
           value={stats.averageDistractions}
         />
         <StatCard
-          label="Focus success rate"
+          label="Success rate"
           value={`${stats.successRate}%`}
-          detail="completed sessions / total sessions × 100"
           tone="green"
         />
         <StatCard label="Current streak" value={`${stats.streak} days`} />
@@ -125,23 +130,21 @@ function DashboardPage({ sessions, settings }) {
           <h2>{stats.bestFocusTime.label}</h2>
           <p>Based on when your weekly sessions started.</p>
         </article>
-        <article className="panel formula-panel">
-          <p className="eyebrow">Success rate formula</p>
-          <h2>{stats.successRate}%</h2>
-          <p>{stats.successRateFormula} = focus success rate</p>
-        </article>
       </section>
 
       <section className="charts-grid" aria-label="Charts">
-        <ChartCard title="Focus minutes by subject">
+        <ChartCard title="By subject">
           {focusBySubject.length ? (
             <ResponsiveContainer width="100%" height={260}>
               <BarChart data={focusBySubject}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="subject" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="minutes" radius={[6, 6, 0, 0]} fill="#2a8473" />
+                <XAxis dataKey="subject" axisLine={false} tickLine={false} />
+                <YAxis axisLine={false} tickLine={false} />
+                <Tooltip
+                  contentStyle={tooltipStyle}
+                  cursor={tooltipCursor}
+                  labelStyle={tooltipLabelStyle}
+                />
+                <Bar dataKey="minutes" radius={[8, 8, 0, 0]} fill="#a78bfa" />
               </BarChart>
             </ResponsiveContainer>
           ) : (
@@ -149,34 +152,37 @@ function DashboardPage({ sessions, settings }) {
           )}
         </ChartCard>
 
-        <ChartCard title="Focus minutes by day">
+        <ChartCard title="By day">
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={focusByDay}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="day" />
-              <YAxis />
-              <Tooltip />
+              <XAxis dataKey="day" axisLine={false} tickLine={false} />
+              <YAxis axisLine={false} tickLine={false} />
+              <Tooltip
+                contentStyle={tooltipStyle}
+                cursor={tooltipCursor}
+                labelStyle={tooltipLabelStyle}
+              />
               <Line
                 dataKey="minutes"
-                stroke="#2563eb"
+                stroke="#cab1ff"
                 strokeWidth={3}
                 type="monotone"
-                dot={{ r: 4 }}
+                dot={{ fill: '#1f1f20', r: 4, stroke: '#cab1ff', strokeWidth: 2 }}
               />
             </LineChart>
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Completed vs incomplete sessions">
+        <ChartCard title="Completion">
           {completionSplit.some((item) => item.value > 0) ? (
             <ResponsiveContainer width="100%" height={260}>
               <PieChart>
                 <Pie
                   data={completionSplit}
                   dataKey="value"
+                  innerRadius={58}
                   nameKey="name"
                   outerRadius={92}
-                  label
                 >
                   {completionSplit.map((entry, index) => (
                     <Cell
@@ -185,7 +191,11 @@ function DashboardPage({ sessions, settings }) {
                     />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip
+                  contentStyle={tooltipStyle}
+                  cursor={tooltipCursor}
+                  labelStyle={tooltipLabelStyle}
+                />
               </PieChart>
             </ResponsiveContainer>
           ) : (
@@ -193,17 +203,20 @@ function DashboardPage({ sessions, settings }) {
           )}
         </ChartCard>
 
-        <ChartCard title="Distractions by day">
+        <ChartCard title="Distractions">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={distractionsByDay}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="day" />
-              <YAxis allowDecimals={false} />
-              <Tooltip />
+              <XAxis dataKey="day" axisLine={false} tickLine={false} />
+              <YAxis allowDecimals={false} axisLine={false} tickLine={false} />
+              <Tooltip
+                contentStyle={tooltipStyle}
+                cursor={tooltipCursor}
+                labelStyle={tooltipLabelStyle}
+              />
               <Bar
                 dataKey="distractions"
-                radius={[6, 6, 0, 0]}
-                fill="#d78b1f"
+                radius={[8, 8, 0, 0]}
+                fill="#746880"
               />
             </BarChart>
           </ResponsiveContainer>
@@ -214,7 +227,7 @@ function DashboardPage({ sessions, settings }) {
         <div className="panel-heading">
           <div>
             <p className="eyebrow">Achievements</p>
-            <h2>Badges</h2>
+            <h2>Milestones</h2>
           </div>
         </div>
         <div className="badge-grid">

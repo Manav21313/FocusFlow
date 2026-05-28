@@ -48,7 +48,7 @@ function HistoryPage({ sessions, onDeleteSession, onClearSessions }) {
         <div>
           <p className="eyebrow">History</p>
           <h1>Study sessions</h1>
-          <p>Review saved sessions by date, subject, completion, distractions, and energy.</p>
+          <p>Review saved focus sessions by date, subject, completion, and energy.</p>
         </div>
         <button
           className="danger-button"
@@ -56,13 +56,13 @@ function HistoryPage({ sessions, onDeleteSession, onClearSessions }) {
           onClick={clearAll}
           disabled={sessions.length === 0}
         >
-          Clear all history
+          Clear history
         </button>
       </section>
 
       <section className="panel filter-panel" aria-label="History filters">
         <label className="field">
-          <span>Filter by subject</span>
+          <span>Subject</span>
           <select
             value={subjectFilter}
             onChange={(event) => setSubjectFilter(event.target.value)}
@@ -77,7 +77,7 @@ function HistoryPage({ sessions, onDeleteSession, onClearSessions }) {
         </label>
 
         <label className="field">
-          <span>Filter by completed/incomplete</span>
+          <span>Status</span>
           <select
             value={statusFilter}
             onChange={(event) => setStatusFilter(event.target.value)}

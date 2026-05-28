@@ -53,7 +53,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
-  background: var(--bg);
+  background: #1f1f20;
 }
 
 button,
