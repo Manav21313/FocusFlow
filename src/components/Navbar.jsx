@@ -5,7 +5,17 @@ const navItems = [
   { id: 'settings', label: 'Settings' },
 ]
 
-function Navbar({ currentPage, onNavigate }) {
+const getInitials = (name, email) => {
+  const source = name || email || 'FocusFlow'
+  const parts = source
+    .split(/[\s@.]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+
+  return parts.map((part) => part[0].toUpperCase()).join('') || 'FF'
+}
+
+function Navbar({ currentPage, currentUser, onNavigate, onSignOut }) {
   return (
     <header className="navbar">
       <button
@@ -29,6 +39,24 @@ function Navbar({ currentPage, onNavigate }) {
             {item.label}
           </button>
         ))}
+        <button
+          className={currentPage === 'signin' ? 'active' : ''}
+          type="button"
+          onClick={() => onNavigate('signin')}
+        >
+          {currentUser ? 'Account' : 'Sign In'}
+        </button>
+        {currentUser ? (
+          <button
+            className="profile-button"
+            type="button"
+            onClick={onSignOut}
+            aria-label={`Sign out ${currentUser.name}`}
+            title="Sign out"
+          >
+            {getInitials(currentUser.name, currentUser.email)}
+          </button>
+        ) : null}
       </nav>
     </header>
   )

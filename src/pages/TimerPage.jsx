@@ -48,7 +48,14 @@ const playSessionTone = () => {
   oscillator.stop(audioContext.currentTime + 0.3)
 }
 
-function TimerPage({ settings, todos, onNavigate, onSaveSession, onSaveTodos }) {
+function TimerPage({
+  currentUser,
+  settings,
+  todos,
+  onNavigate,
+  onSaveSession,
+  onSaveTodos,
+}) {
   const [selectedMinutes, setSelectedMinutes] = useState(settings.defaultFocusMinutes)
   const [customMinutes, setCustomMinutes] = useState(settings.defaultFocusMinutes)
   const [subject, setSubject] = useState('Computer Science')
@@ -231,24 +238,26 @@ function TimerPage({ settings, todos, onNavigate, onSaveSession, onSaveTodos }) 
 
   return (
     <div className="timer-reference-page">
-      <nav className="timer-route-links" aria-label="FocusFlow navigation">
-        {timerNavItems.map((item) => (
-          <button
-            className="secondary-button"
-            key={item.id}
-            type="button"
-            onClick={() => onNavigate(item.id)}
-          >
-            {item.label}
-          </button>
-        ))}
-      </nav>
+      <header className="timer-topbar">
+        <h1 className="countdown-title">FocusFlow</h1>
+        <nav className="timer-route-links" aria-label="FocusFlow navigation">
+          {[
+            ...timerNavItems,
+            { id: 'signin', label: currentUser ? 'Account' : 'Sign In' },
+          ].map((item) => (
+            <button
+              className="secondary-button"
+              key={item.id}
+              type="button"
+              onClick={() => onNavigate(item.id)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
+      </header>
 
       <div className="timer-workflow">
-        <section className="timer-page-heading">
-          <h1 className="countdown-title">Countdown timer variables</h1>
-        </section>
-
         <section className="countdown-reference" aria-label="Focus countdown">
           <dl
             className="countdown-card"

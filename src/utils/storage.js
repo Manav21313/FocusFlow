@@ -4,6 +4,8 @@ import { sortTodos } from './todos'
 const sessionsKey = 'focusflow:sessions'
 const settingsKey = 'focusflow:settings'
 const todosKey = 'focusflow:todos'
+const userKey = 'focusflow:user'
+const themeOptions = new Set(['light', 'dark', 'signature'])
 
 const readJson = (key, fallback) => {
   try {
@@ -30,10 +32,27 @@ export const saveTodos = (todos) => {
   writeJson(todosKey, sortTodos(todos))
 }
 
-export const loadSettings = () => ({
-  ...defaultSettings,
-  ...readJson(settingsKey, {}),
-})
+export const loadUser = () => readJson(userKey, null)
+
+export const saveUser = (user) => {
+  writeJson(userKey, user)
+}
+
+export const clearUser = () => {
+  window.localStorage.removeItem(userKey)
+}
+
+export const loadSettings = () => {
+  const settings = {
+    ...defaultSettings,
+    ...readJson(settingsKey, {}),
+  }
+
+  return {
+    ...settings,
+    theme: themeOptions.has(settings.theme) ? settings.theme : defaultSettings.theme,
+  }
+}
 
 export const saveSettings = (settings) => {
   writeJson(settingsKey, settings)
