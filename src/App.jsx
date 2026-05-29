@@ -7,8 +7,10 @@ import TimerPage from './pages/TimerPage'
 import {
   loadSessions,
   loadSettings,
+  loadTodos,
   saveSessions,
   saveSettings,
+  saveTodos,
 } from './utils/storage'
 import './App.css'
 
@@ -29,6 +31,7 @@ function App() {
   const [currentPage, setCurrentPage] = useState(getPageFromHash)
   const [sessions, setSessions] = useState(loadSessions)
   const [settings, setSettings] = useState(loadSettings)
+  const [todos, setTodos] = useState(loadTodos)
   const ActivePage = pages[currentPage]
   const isTimerPage = currentPage === 'timer'
 
@@ -47,6 +50,10 @@ function App() {
     saveSettings(settings)
     document.documentElement.dataset.theme = settings.theme
   }, [settings])
+
+  useEffect(() => {
+    saveTodos(todos)
+  }, [todos])
 
   const navigate = (page) => {
     if (!pages[page]) return
@@ -77,7 +84,9 @@ function App() {
       <ActivePage
         sessions={sessions}
         settings={settings}
+        todos={todos}
         onSaveSession={addSession}
+        onSaveTodos={setTodos}
         onDeleteSession={deleteSession}
         onClearSessions={clearSessions}
         onNavigate={navigate}

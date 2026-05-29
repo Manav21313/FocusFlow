@@ -1,7 +1,9 @@
 import { defaultSettings } from '../data/defaultSettings'
+import { sortTodos } from './todos'
 
 const sessionsKey = 'focusflow:sessions'
 const settingsKey = 'focusflow:settings'
+const todosKey = 'focusflow:todos'
 
 const readJson = (key, fallback) => {
   try {
@@ -20,6 +22,12 @@ export const loadSessions = () => readJson(sessionsKey, [])
 
 export const saveSessions = (sessions) => {
   writeJson(sessionsKey, sessions)
+}
+
+export const loadTodos = () => sortTodos(readJson(todosKey, []))
+
+export const saveTodos = (todos) => {
+  writeJson(todosKey, sortTodos(todos))
 }
 
 export const loadSettings = () => ({

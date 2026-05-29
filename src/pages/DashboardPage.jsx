@@ -22,6 +22,7 @@ import {
   getFocusBySubject,
 } from '../utils/analytics'
 import { formatMinutes } from '../utils/dateHelpers'
+import { getTodoSummary, sortTodos, todoDifficultyOptions } from '../utils/todos'
 
 const chartColors = ['#c026ff', '#d568ff', '#22d3ee', '#f5b451']
 const tooltipStyle = {
@@ -67,14 +68,24 @@ function MetricGraphCard({ title, value, detail, children }) {
   )
 }
 
-function DashboardPage({ sessions, settings }) {
+function DashboardPage({ sessions, settings, todos }) {
   const stats = getDashboardStats(sessions)
   const focusBySubject = getFocusBySubject(sessions)
   const focusByDay = getFocusByDay(sessions)
   const completionSplit = getCompletionSplit(sessions)
   const distractionsByDay = getDistractionsByDay(sessions)
   const badges = getAchievementBadges(sessions)
+  const sortedTodos = sortTodos(todos)
+  const openTodos = sortedTodos.filter((todo) => !todo.completed)
+  const completedTodos = sortedTodos.length - openTodos.length
+  const nextTodo = openTodos[0]
+  const activeSubjects = new Set(openTodos.map((todo) => todo.subject)).size
+  const todoDifficultyData = todoDifficultyOptions.map((difficulty) => ({
+    difficulty,
+    tasks: openTodos.filter((todo) => todo.difficulty === difficulty).length,
+  }))
   const hasDistractions = distractionsByDay.some((item) => item.distractions > 0)
+  const hasOpenTodos = openTodos.length > 0
   const totalWeekSessions = completionSplit.reduce(
     (total, item) => total + item.value,
     0,
@@ -161,6 +172,26 @@ function DashboardPage({ sessions, settings }) {
             <div>
               <dt>This week</dt>
               <dd>{stats.completedWeek} done</dd>
+            </div>
+          </dl>
+        </article>
+
+        <article className="overview-card task-overview-card">
+          <p className="eyebrow">Task queue</p>
+          <h2>{openTodos.length ? `${openTodos.length} open` : 'No open tasks'}</h2>
+          <p>
+            {nextTodo
+              ? getTodoSummary(nextTodo)
+              : 'Add difficulty, subject, and a short description from the timer.'}
+          </p>
+          <dl className="overview-facts">
+            <div>
+              <dt>Subjects</dt>
+              <dd>{activeSubjects}</dd>
+            </div>
+            <div>
+              <dt>Done</dt>
+              <dd>{completedTodos}</dd>
             </div>
           </dl>
         </article>
@@ -295,6 +326,39 @@ function DashboardPage({ sessions, settings }) {
             <EmptyChart label="No distractions this week." />
           )}
         </MetricGraphCard>
+
+        <MetricGraphCard
+          title="Task difficulty"
+          value={`${openTodos.length} open`}
+          detail="Hard tasks sorted first"
+        >
+          {hasOpenTodos ? (
+            <ResponsiveContainer width="100%" height={112}>
+              <BarChart
+                data={todoDifficultyData}
+                margin={{ bottom: 8, left: 0, right: 0, top: 8 }}
+              >
+                <XAxis dataKey="difficulty" hide />
+                <YAxis allowDecimals={false} hide />
+                <Tooltip
+                  contentStyle={tooltipStyle}
+                  cursor={tooltipCursor}
+                  labelStyle={tooltipLabelStyle}
+                />
+                <Bar dataKey="tasks" radius={[8, 8, 0, 0]}>
+                  {todoDifficultyData.map((entry, index) => (
+                    <Cell
+                      fill={chartColors[index % chartColors.length]}
+                      key={entry.difficulty}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <EmptyChart label="No open tasks yet." />
+          )}
+        </MetricGraphCard>
       </section>
 
       <section className="charts-grid" aria-label="Charts">
@@ -347,6 +411,34 @@ function DashboardPage({ sessions, settings }) {
               />
             </LineChart>
           </ResponsiveContainer>
+        </ChartCard>
+
+        <ChartCard
+          title="Sorted to-do queue"
+          detail="Difficulty first, then subject and short description."
+        >
+          {sortedTodos.length ? (
+            <div className="dashboard-todo-list">
+              {sortedTodos.slice(0, 6).map((todo) => (
+                <article
+                  className={todo.completed ? 'completed' : ''}
+                  key={todo.id}
+                >
+                  <span
+                    className={`difficulty-pill difficulty-${todo.difficulty.toLowerCase()}`}
+                  >
+                    {todo.difficulty}
+                  </span>
+                  <div>
+                    <strong>{todo.subject}</strong>
+                    <p>{todo.description}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <EmptyChart label="No tasks in your queue." />
+          )}
         </ChartCard>
 
         <ChartCard

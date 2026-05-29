@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import BreakTimer from '../components/BreakTimer'
 import { toDateKey } from '../utils/dateHelpers'
+import {
+  getTodoSummary,
+  sortTodos,
+  todoDifficultyOptions,
+} from '../utils/todos'
 
 const presetMinutes = [25, 45, 60]
 const energyLevels = ['Low', 'Medium', 'Good', 'High']
@@ -9,7 +14,6 @@ const timerNavItems = [
   { id: 'history', label: 'History' },
   { id: 'settings', label: 'Settings' },
 ]
-const todoStorageKey = 'focusflow:todos'
 
 const formatSeconds = (seconds) => {
   const mins = Math.floor(seconds / 60)
@@ -25,18 +29,6 @@ const createSessionId = () =>
 
 const createTodoId = () =>
   `todo-${Date.now()}-${Math.random().toString(16).slice(2)}`
-
-const loadTodos = () => {
-  if (typeof window === 'undefined') return []
-
-  try {
-    const savedTodos = window.localStorage.getItem(todoStorageKey)
-    const parsedTodos = savedTodos ? JSON.parse(savedTodos) : []
-    return Array.isArray(parsedTodos) ? parsedTodos : []
-  } catch {
-    return []
-  }
-}
 
 const playSessionTone = () => {
   const AudioContext = window.AudioContext || window.webkitAudioContext
@@ -56,7 +48,7 @@ const playSessionTone = () => {
   oscillator.stop(audioContext.currentTime + 0.3)
 }
 
-function TimerPage({ settings, onNavigate, onSaveSession }) {
+function TimerPage({ settings, todos, onNavigate, onSaveSession, onSaveTodos }) {
   const [selectedMinutes, setSelectedMinutes] = useState(settings.defaultFocusMinutes)
   const [customMinutes, setCustomMinutes] = useState(settings.defaultFocusMinutes)
   const [subject, setSubject] = useState('Computer Science')
@@ -69,8 +61,9 @@ function TimerPage({ settings, onNavigate, onSaveSession }) {
   const [startedAt, setStartedAt] = useState(null)
   const [pendingSession, setPendingSession] = useState(null)
   const [showBreak, setShowBreak] = useState(false)
-  const [todoDraft, setTodoDraft] = useState('')
-  const [todos, setTodos] = useState(loadTodos)
+  const [todoSubjectDraft, setTodoSubjectDraft] = useState('')
+  const [todoDifficultyDraft, setTodoDifficultyDraft] = useState('Medium')
+  const [todoDescriptionDraft, setTodoDescriptionDraft] = useState('')
 
   const plannedMinutes = useMemo(() => {
     const value = Number(selectedMinutes === 'custom' ? customMinutes : selectedMinutes)
@@ -91,6 +84,7 @@ function TimerPage({ settings, onNavigate, onSaveSession }) {
       { label: 'Seconds', value: formatTimePart(seconds) },
     ]
   }, [timeLeft])
+  const sortedTodos = useMemo(() => sortTodos(todos), [todos])
 
   useEffect(() => {
     if (!isRunning) return undefined
@@ -109,10 +103,6 @@ function TimerPage({ settings, onNavigate, onSaveSession }) {
 
     return () => window.clearInterval(timer)
   }, [isRunning])
-
-  useEffect(() => {
-    window.localStorage.setItem(todoStorageKey, JSON.stringify(todos))
-  }, [todos])
 
   const resetTimer = (nextMinutes = plannedMinutes) => {
     setIsRunning(false)
@@ -196,21 +186,33 @@ function TimerPage({ settings, onNavigate, onSaveSession }) {
     setShowBreak(session.completed)
   }
 
+  const updateTodos = (updater) => {
+    onSaveTodos((currentTodos) =>
+      sortTodos(typeof updater === 'function' ? updater(currentTodos) : updater),
+    )
+  }
+
   const addTodo = (event) => {
     event.preventDefault()
 
-    const label = todoDraft.trim()
-    if (!label) return
+    const description = todoDescriptionDraft.trim()
+    if (!description) return
 
-    setTodos((currentTodos) => [
+    updateTodos((currentTodos) => [
       ...currentTodos,
-      { id: createTodoId(), label, completed: false },
+      {
+        id: createTodoId(),
+        difficulty: todoDifficultyDraft,
+        subject: todoSubjectDraft.trim() || subject.trim() || 'General Study',
+        description,
+        completed: false,
+      },
     ])
-    setTodoDraft('')
+    setTodoDescriptionDraft('')
   }
 
   const toggleTodo = (id) => {
-    setTodos((currentTodos) =>
+    updateTodos((currentTodos) =>
       currentTodos.map((todo) =>
         todo.id === id ? { ...todo, completed: !todo.completed } : todo,
       ),
@@ -218,14 +220,14 @@ function TimerPage({ settings, onNavigate, onSaveSession }) {
   }
 
   const deleteTodo = (id) => {
-    setTodos((currentTodos) => currentTodos.filter((todo) => todo.id !== id))
+    updateTodos((currentTodos) => currentTodos.filter((todo) => todo.id !== id))
   }
 
   const clearCompletedTodos = () => {
-    setTodos((currentTodos) => currentTodos.filter((todo) => !todo.completed))
+    updateTodos((currentTodos) => currentTodos.filter((todo) => !todo.completed))
   }
 
-  const completedTodos = todos.filter((todo) => todo.completed).length
+  const completedTodos = sortedTodos.filter((todo) => todo.completed).length
 
   return (
     <div className="timer-reference-page">
@@ -243,13 +245,11 @@ function TimerPage({ settings, onNavigate, onSaveSession }) {
       </nav>
 
       <div className="timer-workflow">
-        <section className="countdown-reference" aria-label="Focus countdown">
-          <h1 className="countdown-title">
-            Countdown timer
-            <br />
-            Variables
-          </h1>
+        <section className="timer-page-heading">
+          <h1 className="countdown-title">Countdown timer variables</h1>
+        </section>
 
+        <section className="countdown-reference" aria-label="Focus countdown">
           <dl
             className="countdown-card"
             aria-label={`${formatSeconds(timeLeft)} remaining`}
@@ -418,7 +418,7 @@ function TimerPage({ settings, onNavigate, onSaveSession }) {
                 <div>
                   <p className="eyebrow">To-do list</p>
                   <h3>
-                    {completedTodos}/{todos.length} complete
+                    {completedTodos}/{sortedTodos.length} complete
                   </h3>
                 </div>
                 <button
@@ -432,36 +432,70 @@ function TimerPage({ settings, onNavigate, onSaveSession }) {
               </div>
 
               <form className="todo-form" onSubmit={addTodo}>
-                <input
-                  value={todoDraft}
-                  onChange={(event) => setTodoDraft(event.target.value)}
-                  placeholder="Add a study task"
-                />
+                <label className="field">
+                  <span>Difficulty</span>
+                  <select
+                    value={todoDifficultyDraft}
+                    onChange={(event) => setTodoDifficultyDraft(event.target.value)}
+                  >
+                    {todoDifficultyOptions.map((difficulty) => (
+                      <option key={difficulty} value={difficulty}>
+                        {difficulty}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="field">
+                  <span>Subject</span>
+                  <input
+                    value={todoSubjectDraft}
+                    onChange={(event) => setTodoSubjectDraft(event.target.value)}
+                    placeholder={subject || 'General Study'}
+                  />
+                </label>
+                <label className="field todo-description-field">
+                  <span>Short description</span>
+                  <input
+                    value={todoDescriptionDraft}
+                    onChange={(event) => setTodoDescriptionDraft(event.target.value)}
+                    placeholder="Review recursion notes"
+                  />
+                </label>
                 <button className="primary-button" type="submit">
                   Add
                 </button>
               </form>
 
               <div className="todo-list">
-                {todos.length ? (
-                  todos.map((todo) => (
+                {sortedTodos.length ? (
+                  sortedTodos.map((todo) => (
                     <article
                       className={todo.completed ? 'completed' : ''}
                       key={todo.id}
                     >
-                      <label>
+                      <label className="todo-check">
                         <input
                           checked={todo.completed}
                           type="checkbox"
                           onChange={() => toggleTodo(todo.id)}
                         />
-                        <span>{todo.label}</span>
+                        <span className="todo-copy">
+                          <span className="todo-meta">
+                            <span
+                              className={`difficulty-pill difficulty-${todo.difficulty.toLowerCase()}`}
+                            >
+                              {todo.difficulty}
+                            </span>
+                            <span>{todo.subject}</span>
+                          </span>
+                          <strong>{todo.description}</strong>
+                        </span>
                       </label>
                       <button
                         className="danger-button"
                         type="button"
                         onClick={() => deleteTodo(todo.id)}
-                        aria-label={`Delete ${todo.label}`}
+                        aria-label={`Delete ${getTodoSummary(todo)}`}
                       >
                         Delete
                       </button>
