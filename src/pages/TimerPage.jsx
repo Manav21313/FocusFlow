@@ -49,12 +49,12 @@ const playSessionTone = () => {
 }
 
 function TimerPage({
-  currentUser,
   settings,
   todos,
   onNavigate,
   onSaveSession,
   onSaveTodos,
+  onSignOut,
 }) {
   const [selectedMinutes, setSelectedMinutes] = useState(settings.defaultFocusMinutes)
   const [customMinutes, setCustomMinutes] = useState(settings.defaultFocusMinutes)
@@ -241,10 +241,7 @@ function TimerPage({
       <header className="timer-topbar">
         <h1 className="countdown-title">FocusFlow</h1>
         <nav className="timer-route-links" aria-label="FocusFlow navigation">
-          {[
-            ...timerNavItems,
-            { id: 'signin', label: currentUser ? 'Account' : 'Sign In' },
-          ].map((item) => (
+          {timerNavItems.map((item) => (
             <button
               className="secondary-button"
               key={item.id}
@@ -254,6 +251,9 @@ function TimerPage({
               {item.label}
             </button>
           ))}
+          <button className="secondary-button" type="button" onClick={onSignOut}>
+            Log out
+          </button>
         </nav>
       </header>
 

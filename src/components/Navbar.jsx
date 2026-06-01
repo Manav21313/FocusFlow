@@ -39,23 +39,19 @@ function Navbar({ currentPage, currentUser, onNavigate, onSignOut }) {
             {item.label}
           </button>
         ))}
-        <button
-          className={currentPage === 'signin' ? 'active' : ''}
-          type="button"
-          onClick={() => onNavigate('signin')}
-        >
-          {currentUser ? 'Account' : 'Sign In'}
-        </button>
         {currentUser ? (
-          <button
-            className="profile-button"
-            type="button"
-            onClick={onSignOut}
-            aria-label={`Sign out ${currentUser.name}`}
-            title="Sign out"
-          >
-            {getInitials(currentUser.name, currentUser.email)}
-          </button>
+          <>
+            <span className="nav-user-pill" title={currentUser.email}>
+              {getInitials(currentUser.displayName, currentUser.email)}
+            </span>
+            <button
+              className="nav-logout-button"
+              type="button"
+              onClick={onSignOut}
+            >
+              Log out
+            </button>
+          </>
         ) : null}
       </nav>
     </header>

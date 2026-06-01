@@ -1,11 +1,10 @@
 import { defaultSettings } from '../data/defaultSettings'
 import { sortTodos } from './todos'
 
-const sessionsKey = 'focusflow:sessions'
-const settingsKey = 'focusflow:settings'
-const todosKey = 'focusflow:todos'
-const userKey = 'focusflow:user'
+const currentUserKey = 'focusflow_current_user'
 const themeOptions = new Set(['light', 'dark', 'signature'])
+
+const userScopedKey = (prefix, uid) => `${prefix}_${uid}`
 
 const readJson = (key, fallback) => {
   try {
@@ -20,32 +19,42 @@ const writeJson = (key, value) => {
   window.localStorage.setItem(key, JSON.stringify(value))
 }
 
-export const loadSessions = () => readJson(sessionsKey, [])
+export const loadSessions = (uid) =>
+  uid ? readJson(userScopedKey('focusflow_sessions', uid), []) : []
 
-export const saveSessions = (sessions) => {
-  writeJson(sessionsKey, sessions)
+export const saveSessions = (uid, sessions) => {
+  if (!uid) return
+
+  writeJson(userScopedKey('focusflow_sessions', uid), sessions)
 }
 
-export const loadTodos = () => sortTodos(readJson(todosKey, []))
+export const loadTodos = (uid) =>
+  uid ? sortTodos(readJson(userScopedKey('focusflow_todos', uid), [])) : []
 
-export const saveTodos = (todos) => {
-  writeJson(todosKey, sortTodos(todos))
+export const saveTodos = (uid, todos) => {
+  if (!uid) return
+
+  writeJson(userScopedKey('focusflow_todos', uid), sortTodos(todos))
 }
 
-export const loadUser = () => readJson(userKey, null)
+export const saveSafeUser = (user) => {
+  if (!user?.uid) return
 
-export const saveUser = (user) => {
-  writeJson(userKey, user)
+  writeJson(currentUserKey, {
+    uid: user.uid,
+    displayName: user.displayName || '',
+    email: user.email || '',
+  })
 }
 
-export const clearUser = () => {
-  window.localStorage.removeItem(userKey)
+export const clearSafeUser = () => {
+  window.localStorage.removeItem(currentUserKey)
 }
 
-export const loadSettings = () => {
+export const loadSettings = (uid) => {
   const settings = {
     ...defaultSettings,
-    ...readJson(settingsKey, {}),
+    ...(uid ? readJson(userScopedKey('focusflow_settings', uid), {}) : {}),
   }
 
   return {
@@ -54,6 +63,8 @@ export const loadSettings = () => {
   }
 }
 
-export const saveSettings = (settings) => {
-  writeJson(settingsKey, settings)
+export const saveSettings = (uid, settings) => {
+  if (!uid) return
+
+  writeJson(userScopedKey('focusflow_settings', uid), settings)
 }

@@ -88,15 +88,25 @@
   padding: 0 14px;
 }
 
-.nav-links .profile-button {
+.nav-user-pill {
   display: grid;
   place-items: center;
   width: 40px;
   min-width: 40px;
+  height: 40px;
   padding: 0;
-  border-color: var(--line-strong);
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
   color: #ffffff;
   background: var(--accent);
+  font-size: 0.84rem;
+  font-weight: 850;
+}
+
+.nav-logout-button {
+  border-color: color-mix(in srgb, var(--red) 28%, transparent);
+  color: var(--red);
+  background: color-mix(in srgb, var(--red) 12%, transparent);
 }
 
 .nav-links button.active,
@@ -122,6 +132,16 @@
   border-color: var(--line-strong);
   color: var(--accent-strong);
   background: color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+.app-shell:not(.timer-shell) .nav-links .nav-logout-button {
+  border-color: color-mix(in srgb, var(--red) 28%, transparent);
+  color: var(--red);
+  background: color-mix(in srgb, var(--red) 12%, transparent);
+}
+
+.app-shell:not(.timer-shell) .nav-links .nav-logout-button:not(:disabled):hover {
+  background: color-mix(in srgb, var(--red) 18%, transparent);
 }
 
 .panel,
@@ -1521,6 +1541,11 @@ select:focus {
   min-height: 472px;
 }
 
+.compact-auth-grid .auth-card,
+.compact-auth-grid .auth-side {
+  min-height: 340px;
+}
+
 .auth-side {
   min-height: 472px;
 }
@@ -1560,13 +1585,79 @@ select:focus {
   min-height: auto;
 }
 
-.auth-error {
+.auth-message {
   margin: 0;
   padding: 12px 14px;
-  border: 1px solid color-mix(in srgb, var(--red) 30%, transparent);
   border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+
+.auth-error {
+  border: 1px solid color-mix(in srgb, var(--red) 30%, transparent);
   color: var(--red);
   background: color-mix(in srgb, var(--red) 10%, transparent);
+}
+
+.auth-success {
+  border: 1px solid color-mix(in srgb, var(--accent) 36%, transparent);
+  color: var(--accent-strong);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.password-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.password-toggle {
+  min-width: 74px;
+  padding: 0 12px;
+}
+
+.google-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.auth-footer a {
+  color: var(--accent-strong);
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.auth-shell {
+  display: grid;
+  place-items: center;
+  min-height: min(70vh, 620px);
+}
+
+.auth-loading-panel {
+  width: min(420px, 100%);
+  text-align: center;
+}
+
+.auth-loading-panel h1 {
+  margin-bottom: 8px;
+  color: var(--ink);
+  font-size: 2rem;
+  font-weight: 550;
+  letter-spacing: 0;
 }
 
 .auth-profile {
@@ -1597,6 +1688,26 @@ select:focus {
   margin: 8px 0 0;
   color: var(--muted);
   overflow-wrap: anywhere;
+}
+
+.compact-profile {
+  align-items: start;
+}
+
+.compact-profile .auth-avatar {
+  width: 54px;
+  height: 54px;
+  font-size: 1rem;
+}
+
+.compact-profile strong {
+  display: block;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.account-section .danger-button {
+  justify-self: start;
 }
 
 .auth-actions {
@@ -1924,9 +2035,9 @@ select:focus-visible {
     min-width: 0;
   }
 
-  .nav-links .profile-button {
-    width: 40px;
-  }
+.nav-user-pill {
+  width: 40px;
+}
 
   .hero-panel h1,
   .timer-panel h1 {

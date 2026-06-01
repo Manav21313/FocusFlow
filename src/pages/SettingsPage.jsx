@@ -22,7 +22,17 @@ const themeOptions = [
   },
 ]
 
-function SettingsPage({ settings, onSaveSettings }) {
+const getInitials = (name, email) => {
+  const source = name || email || 'FocusFlow'
+  const parts = source
+    .split(/[\s@.]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+
+  return parts.map((part) => part[0].toUpperCase()).join('') || 'FF'
+}
+
+function SettingsPage({ currentUser, settings, onSaveSettings, onSignOut }) {
   const [draft, setDraft] = useState(settings)
 
   const updateDraft = (key, value) => {
@@ -162,6 +172,29 @@ function SettingsPage({ settings, onSaveSettings }) {
             />
             <span>Completion sound</span>
           </label>
+        </section>
+
+        <section className="panel settings-section account-section">
+          <div className="panel-heading">
+            <div>
+              <p className="eyebrow">Account</p>
+              <h2>Signed in</h2>
+            </div>
+          </div>
+
+          <div className="auth-profile compact-profile">
+            <span className="auth-avatar">
+              {getInitials(currentUser?.displayName, currentUser?.email)}
+            </span>
+            <div>
+              <strong>{currentUser?.displayName || 'FocusFlow user'}</strong>
+              <p>{currentUser?.email}</p>
+            </div>
+          </div>
+
+          <button className="danger-button" type="button" onClick={onSignOut}>
+            Log out
+          </button>
         </section>
 
         <div className="settings-actions">
