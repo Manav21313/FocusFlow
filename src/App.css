@@ -1674,7 +1674,7 @@ select:focus {
 }
 
 .metric-grid {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .overview-card,
@@ -1744,6 +1744,23 @@ select:focus {
 .daily-goal-card .progress-track {
   height: 10px;
   margin: 18px 0 12px;
+}
+
+.daily-goal-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: end;
+  margin-top: 16px;
+}
+
+.daily-goal-form .secondary-button {
+  min-height: 40px;
+  padding: 0 12px;
+}
+
+.daily-goal-field input {
+  min-width: 0;
 }
 
 .metric-card {

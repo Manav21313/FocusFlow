@@ -113,77 +113,86 @@ function App() {
         />
         <Route path="/callback" element={<SpotifyCallbackPage />} />
         <Route
-          path="/timer"
+          path="/*"
           element={
-            <ProtectedRoute>
-              <UserDataRoute key={user?.uid}>
-                {({ settings, todos, addSession, setTodos }) => (
-                  <TimerPage
-                    userId={user?.uid}
-                    settings={settings}
-                    todos={todos}
-                    onNavigate={navigateToPage}
-                    onSaveSession={addSession}
-                    onSaveTodos={setTodos}
-                    onSignOut={signOutUser}
-                  />
-                )}
-              </UserDataRoute>
-            </ProtectedRoute>
+            <ProtectedAppRoutes
+              currentUser={user}
+              onNavigate={navigateToPage}
+              onSignOut={signOutUser}
+            />
           }
         />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <UserDataRoute key={user?.uid}>
-                {({ sessions, settings, todos }) => (
-                  <DashboardPage
-                    sessions={sessions}
-                    settings={settings}
-                    todos={todos}
-                  />
-                )}
-              </UserDataRoute>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/history"
-          element={
-            <ProtectedRoute>
-              <UserDataRoute key={user?.uid}>
-                {({ sessions, deleteSession, clearSessions }) => (
-                  <HistoryPage
-                    sessions={sessions}
-                    onDeleteSession={deleteSession}
-                    onClearSessions={clearSessions}
-                  />
-                )}
-              </UserDataRoute>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/settings"
-          element={
-            <ProtectedRoute>
-              <UserDataRoute key={user?.uid}>
-                {({ settings, setSettings }) => (
-                  <SettingsPage
-                    currentUser={user}
-                    settings={settings}
-                    onSaveSettings={setSettings}
-                    onSignOut={signOutUser}
-                  />
-                )}
-              </UserDataRoute>
-            </ProtectedRoute>
-          }
-        />
-        <Route path="*" element={<Navigate to="/timer" replace />} />
       </Routes>
     </main>
+  )
+}
+
+function ProtectedAppRoutes({ currentUser, onNavigate, onSignOut }) {
+  return (
+    <ProtectedRoute>
+      <UserDataRoute key={currentUser?.uid}>
+        {({
+          sessions,
+          settings,
+          todos,
+          addSession,
+          deleteSession,
+          clearSessions,
+          setSettings,
+          setTodos,
+        }) => (
+          <Routes>
+            <Route
+              path="/timer"
+              element={
+                <TimerPage
+                  userId={currentUser?.uid}
+                  settings={settings}
+                  todos={todos}
+                  onNavigate={onNavigate}
+                  onSaveSession={addSession}
+                  onSaveTodos={setTodos}
+                  onSignOut={onSignOut}
+                />
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                <DashboardPage
+                  sessions={sessions}
+                  settings={settings}
+                  todos={todos}
+                  onSaveSettings={setSettings}
+                />
+              }
+            />
+            <Route
+              path="/history"
+              element={
+                <HistoryPage
+                  sessions={sessions}
+                  onDeleteSession={deleteSession}
+                  onClearSessions={clearSessions}
+                />
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <SettingsPage
+                  currentUser={currentUser}
+                  settings={settings}
+                  onSaveSettings={setSettings}
+                  onSignOut={onSignOut}
+                />
+              }
+            />
+            <Route path="*" element={<Navigate to="/timer" replace />} />
+          </Routes>
+        )}
+      </UserDataRoute>
+    </ProtectedRoute>
   )
 }
 

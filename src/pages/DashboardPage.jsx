@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   Area,
   AreaChart,
@@ -35,6 +36,15 @@ const tooltipLabelStyle = { color: '#e5b7ff' }
 const tooltipCursor = { fill: 'rgba(192, 38, 255, 0.1)' }
 const axisTick = { fill: '#b9acc8', fontSize: 12 }
 
+const getGoalMinutes = (value, fallback = 120) => {
+  const minutes = Number(value)
+
+  return Math.max(
+    1,
+    Number.isFinite(minutes) && minutes > 0 ? Math.round(minutes) : fallback,
+  )
+}
+
 function EmptyChart({ label }) {
   return (
     <div className="chart-empty">
@@ -68,7 +78,7 @@ function MetricGraphCard({ title, value, detail, children }) {
   )
 }
 
-function DashboardPage({ sessions, settings, todos }) {
+function DashboardPage({ sessions, settings, todos, onSaveSettings }) {
   const stats = getDashboardStats(sessions)
   const focusBySubject = getFocusBySubject(sessions)
   const focusByDay = getFocusByDay(sessions)
@@ -93,23 +103,27 @@ function DashboardPage({ sessions, settings, todos }) {
   const latestSession = sessions
     .slice()
     .sort((a, b) => new Date(b.startTime) - new Date(a.startTime))[0]
-  const dailyGoalMinutes = Math.max(1, Number(settings.dailyFocusGoalMinutes) || 1)
+  const dailyGoalMinutes = getGoalMinutes(settings.dailyFocusGoalMinutes, 120)
+  const [goalDraft, setGoalDraft] = useState(String(dailyGoalMinutes))
   const remainingGoalMinutes = Math.max(
     dailyGoalMinutes - stats.totalFocusToday,
     0,
   )
-  const goalChartData = [
-    {
-      label: 'Today',
-      focused: stats.totalFocusToday,
-      remaining: remainingGoalMinutes,
-    },
-  ]
   const goalPercent = Math.min(
     100,
     Math.round((stats.totalFocusToday / dailyGoalMinutes) * 100) || 0,
   )
-  const goalDomainMax = Math.max(dailyGoalMinutes, stats.totalFocusToday, 1)
+
+  const saveDailyGoal = (event) => {
+    event.preventDefault()
+
+    const nextGoalMinutes = getGoalMinutes(goalDraft, dailyGoalMinutes)
+    setGoalDraft(String(nextGoalMinutes))
+    onSaveSettings({
+      ...settings,
+      dailyFocusGoalMinutes: nextGoalMinutes,
+    })
+  }
 
   return (
     <div className="dashboard-page">
@@ -146,14 +160,30 @@ function DashboardPage({ sessions, settings, todos }) {
 
         <article className="overview-card daily-goal-card">
           <p className="eyebrow">Daily goal</p>
-          <h2>{goalPercent}% complete</h2>
+          <h2>
+            {formatMinutes(stats.totalFocusToday)} /{' '}
+            {formatMinutes(dailyGoalMinutes)}
+          </h2>
           <div className="progress-track" aria-label="Daily focus goal progress">
             <span style={{ width: `${goalPercent}%` }}></span>
           </div>
           <p>
-            {formatMinutes(stats.totalFocusToday)} focused,{' '}
-            {formatMinutes(remainingGoalMinutes)} left.
+            {goalPercent}% complete, {formatMinutes(remainingGoalMinutes)} left.
           </p>
+          <form className="daily-goal-form" onSubmit={saveDailyGoal}>
+            <label className="field daily-goal-field">
+              <span>Goal minutes</span>
+              <input
+                min="1"
+                type="number"
+                value={goalDraft}
+                onChange={(event) => setGoalDraft(event.target.value)}
+              />
+            </label>
+            <button className="secondary-button" type="submit">
+              Save goal
+            </button>
+          </form>
         </article>
 
         <article className="overview-card">
@@ -198,40 +228,6 @@ function DashboardPage({ sessions, settings, todos }) {
       </section>
 
       <section className="metric-grid" aria-label="Productivity graphs">
-        <MetricGraphCard
-          title="Daily focus goal"
-          value={formatMinutes(stats.totalFocusToday)}
-          detail={`${formatMinutes(dailyGoalMinutes)} target`}
-        >
-          <ResponsiveContainer width="100%" height={112}>
-            <BarChart
-              data={goalChartData}
-              layout="vertical"
-              margin={{ bottom: 12, left: 0, right: 0, top: 12 }}
-            >
-              <XAxis type="number" hide domain={[0, goalDomainMax]} />
-              <YAxis dataKey="label" type="category" hide />
-              <Tooltip
-                contentStyle={tooltipStyle}
-                cursor={tooltipCursor}
-                labelStyle={tooltipLabelStyle}
-              />
-              <Bar
-                dataKey="focused"
-                fill="#c026ff"
-                radius={[8, 0, 0, 8]}
-                stackId="goal"
-              />
-              <Bar
-                dataKey="remaining"
-                fill="#241a2e"
-                radius={[0, 8, 8, 0]}
-                stackId="goal"
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        </MetricGraphCard>
-
         <MetricGraphCard
           title="Focus trend"
           value={formatMinutes(stats.totalFocusWeek)}

@@ -1,7 +1,27 @@
 export const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
+const dateKeyPattern = /^\d{4}-\d{2}-\d{2}$/
+
+const parseLocalDate = (value = new Date()) => {
+  if (value instanceof Date) {
+    return new Date(value)
+  }
+
+  if (typeof value === 'string' && dateKeyPattern.test(value)) {
+    const [year, month, day] = value.split('-').map(Number)
+
+    return new Date(year, month - 1, day)
+  }
+
+  return new Date(value)
+}
+
 export const toDateKey = (value = new Date()) => {
-  const date = value instanceof Date ? value : new Date(value)
+  if (typeof value === 'string' && dateKeyPattern.test(value)) {
+    return value
+  }
+
+  const date = parseLocalDate(value)
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const day = String(date.getDate()).padStart(2, '0')
@@ -10,7 +30,7 @@ export const toDateKey = (value = new Date()) => {
 }
 
 export const startOfDay = (value = new Date()) => {
-  const date = value instanceof Date ? new Date(value) : new Date(value)
+  const date = parseLocalDate(value)
   date.setHours(0, 0, 0, 0)
 
   return date
@@ -26,7 +46,7 @@ export const startOfWeek = (value = new Date()) => {
 }
 
 export const addDays = (value, amount) => {
-  const date = value instanceof Date ? new Date(value) : new Date(value)
+  const date = parseLocalDate(value)
   date.setDate(date.getDate() + amount)
 
   return date
@@ -58,10 +78,10 @@ export const formatSessionDate = (value) =>
     month: 'short',
     day: 'numeric',
     year: 'numeric',
-  }).format(new Date(value))
+  }).format(parseLocalDate(value))
 
 export const getDayLabel = (value) => {
-  const date = value instanceof Date ? value : new Date(value)
+  const date = parseLocalDate(value)
 
   return dayNames[date.getDay()]
 }
