@@ -17,7 +17,6 @@ function SessionTable({ sessions, onDeleteSession }) {
           <tr>
             <th>Date</th>
             <th>Subject</th>
-            <th>Task</th>
             <th>Planned Time</th>
             <th>Actual Time</th>
             <th>Completed</th>
@@ -31,7 +30,6 @@ function SessionTable({ sessions, onDeleteSession }) {
             <tr key={session.id}>
               <td>{formatSessionDate(session.date)}</td>
               <td>{session.subject}</td>
-              <td>{session.task}</td>
               <td>{formatMinutes(session.plannedMinutes)}</td>
               <td>{formatMinutes(session.actualMinutes)}</td>
               <td>

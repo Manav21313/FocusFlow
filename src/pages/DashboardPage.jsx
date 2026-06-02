@@ -161,7 +161,7 @@ function DashboardPage({ sessions, settings, todos }) {
           <h2>{latestSession ? latestSession.subject : 'No session yet'}</h2>
           <p>
             {latestSession
-              ? `${latestSession.task} - ${formatMinutes(latestSession.actualMinutes)} logged`
+              ? `${formatMinutes(latestSession.actualMinutes)} logged`
               : 'No saved activity yet.'}
           </p>
           <dl className="overview-facts">

@@ -37,6 +37,15 @@ export const saveTodos = (uid, todos) => {
   writeJson(userScopedKey('focusflow_todos', uid), sortTodos(todos))
 }
 
+export const loadTimerState = (uid) =>
+  uid ? readJson(userScopedKey('focusflow_timer_state', uid), null) : null
+
+export const saveTimerState = (uid, timerState) => {
+  if (!uid) return
+
+  writeJson(userScopedKey('focusflow_timer_state', uid), timerState)
+}
+
 export const saveSafeUser = (user) => {
   if (!user?.uid) return
 

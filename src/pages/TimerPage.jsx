@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import BreakTimer from '../components/BreakTimer'
+import SpotifyPanel from '../components/SpotifyPanel'
 import { toDateKey } from '../utils/dateHelpers'
+import { loadTimerState, saveTimerState } from '../utils/storage'
 import {
   getTodoSummary,
   sortTodos,
@@ -30,6 +32,112 @@ const createSessionId = () =>
 const createTodoId = () =>
   `todo-${Date.now()}-${Math.random().toString(16).slice(2)}`
 
+const getPositiveMinutes = (value, fallback) => {
+  const minutes = Number(value)
+
+  return Math.max(
+    1,
+    Number.isFinite(minutes) && minutes > 0 ? minutes : fallback,
+  )
+}
+
+const getPlannedMinutes = (selectedMinutes, customMinutes, fallbackMinutes) =>
+  getPositiveMinutes(
+    selectedMinutes === 'custom' ? customMinutes : selectedMinutes,
+    fallbackMinutes,
+  )
+
+const getFiniteSeconds = (value, fallback) => {
+  const seconds = Number(value)
+
+  return Number.isFinite(seconds) ? seconds : fallback
+}
+
+const clampSeconds = (value, min, max) =>
+  Math.min(max, Math.max(min, Math.floor(value)))
+
+const createDefaultTimerState = (settings) => ({
+  selectedMinutes: settings.defaultFocusMinutes,
+  customMinutes: settings.defaultFocusMinutes,
+  subject: 'Computer Science',
+  timeLeft: settings.defaultFocusMinutes * 60,
+  elapsedSeconds: 0,
+  distractions: 0,
+  isRunning: false,
+  hasStarted: false,
+  startedAt: null,
+})
+
+const restoreTimerState = (settings, savedTimer) => {
+  const fallback = createDefaultTimerState(settings)
+
+  if (!savedTimer || typeof savedTimer !== 'object') {
+    return fallback
+  }
+
+  const selectedMinutes =
+    savedTimer.selectedMinutes === 'custom'
+      ? 'custom'
+      : getPositiveMinutes(savedTimer.selectedMinutes, fallback.selectedMinutes)
+  const customMinutes = getPositiveMinutes(
+    savedTimer.customMinutes,
+    fallback.customMinutes,
+  )
+  const plannedMinutes = getPlannedMinutes(
+    selectedMinutes,
+    customMinutes,
+    settings.defaultFocusMinutes,
+  )
+  const totalSeconds = plannedMinutes * 60
+  const lastUpdatedAt = Number(savedTimer.lastUpdatedAt) || Date.now()
+  let timeLeft = clampSeconds(
+    getFiniteSeconds(savedTimer.timeLeft, totalSeconds),
+    0,
+    totalSeconds,
+  )
+  let elapsedSeconds = Math.max(
+    0,
+    Math.floor(getFiniteSeconds(savedTimer.elapsedSeconds, 0)),
+  )
+  let isRunning = Boolean(savedTimer.isRunning)
+  const hasStarted = Boolean(savedTimer.hasStarted)
+
+  if (isRunning && hasStarted) {
+    const secondsAway = Math.max(
+      0,
+      Math.floor((Date.now() - lastUpdatedAt) / 1000),
+    )
+    const consumedSeconds = Math.min(secondsAway, timeLeft)
+
+    timeLeft -= consumedSeconds
+    elapsedSeconds += consumedSeconds
+
+    if (timeLeft === 0) {
+      isRunning = false
+    }
+  }
+
+  return {
+    ...fallback,
+    selectedMinutes,
+    customMinutes,
+    subject:
+      typeof savedTimer.subject === 'string' && savedTimer.subject.trim()
+        ? savedTimer.subject
+        : fallback.subject,
+    timeLeft,
+    elapsedSeconds,
+    distractions: Math.max(
+      0,
+      Math.floor(getFiniteSeconds(savedTimer.distractions, 0)),
+    ),
+    isRunning,
+    hasStarted,
+    startedAt:
+      typeof savedTimer.startedAt === 'string' ? savedTimer.startedAt : null,
+  }
+}
+
 const playSessionTone = () => {
   const AudioContext = window.AudioContext || window.webkitAudioContext
   if (!AudioContext) return
@@ -49,6 +157,7 @@ const playSessionTone = () => {
 }
 
 function TimerPage({
+  userId,
   settings,
   todos,
   onNavigate,
@@ -56,16 +165,28 @@ function TimerPage({
   onSaveTodos,
   onSignOut,
 }) {
-  const [selectedMinutes, setSelectedMinutes] = useState(settings.defaultFocusMinutes)
-  const [customMinutes, setCustomMinutes] = useState(settings.defaultFocusMinutes)
-  const [subject, setSubject] = useState('Computer Science')
-  const [task, setTask] = useState('')
-  const [timeLeft, setTimeLeft] = useState(settings.defaultFocusMinutes * 60)
-  const [elapsedSeconds, setElapsedSeconds] = useState(0)
-  const [distractions, setDistractions] = useState(0)
-  const [isRunning, setIsRunning] = useState(false)
-  const [hasStarted, setHasStarted] = useState(false)
-  const [startedAt, setStartedAt] = useState(null)
+  const initialTimer = useMemo(
+    () => restoreTimerState(settings, loadTimerState(userId)),
+    [settings, userId],
+  )
+
+  const [selectedMinutes, setSelectedMinutes] = useState(
+    () => initialTimer.selectedMinutes,
+  )
+  const [customMinutes, setCustomMinutes] = useState(
+    () => initialTimer.customMinutes,
+  )
+  const [subject, setSubject] = useState(() => initialTimer.subject)
+  const [timeLeft, setTimeLeft] = useState(() => initialTimer.timeLeft)
+  const [elapsedSeconds, setElapsedSeconds] = useState(
+    () => initialTimer.elapsedSeconds,
+  )
+  const [distractions, setDistractions] = useState(
+    () => initialTimer.distractions,
+  )
+  const [isRunning, setIsRunning] = useState(() => initialTimer.isRunning)
+  const [hasStarted, setHasStarted] = useState(() => initialTimer.hasStarted)
+  const [startedAt, setStartedAt] = useState(() => initialTimer.startedAt)
   const [pendingSession, setPendingSession] = useState(null)
   const [showBreak, setShowBreak] = useState(false)
   const [todoSubjectDraft, setTodoSubjectDraft] = useState('')
@@ -73,13 +194,16 @@ function TimerPage({
   const [todoDescriptionDraft, setTodoDescriptionDraft] = useState('')
 
   const plannedMinutes = useMemo(() => {
-    const value = Number(selectedMinutes === 'custom' ? customMinutes : selectedMinutes)
-
-    return Math.max(1, value || settings.defaultFocusMinutes)
+    return getPlannedMinutes(
+      selectedMinutes,
+      customMinutes,
+      settings.defaultFocusMinutes,
+    )
   }, [customMinutes, selectedMinutes, settings.defaultFocusMinutes])
 
   const totalSeconds = plannedMinutes * 60
-  const progress = totalSeconds === 0 ? 0 : ((totalSeconds - timeLeft) / totalSeconds) * 100
+  const progress =
+    totalSeconds === 0 ? 0 : ((totalSeconds - timeLeft) / totalSeconds) * 100
   const countdownParts = useMemo(() => {
     const hours = Math.floor(timeLeft / 3600)
     const minutes = Math.floor((timeLeft % 3600) / 60)
@@ -111,20 +235,51 @@ function TimerPage({
     return () => window.clearInterval(timer)
   }, [isRunning])
 
+  useEffect(() => {
+    saveTimerState(userId, {
+      selectedMinutes,
+      customMinutes,
+      subject,
+      timeLeft,
+      elapsedSeconds,
+      distractions,
+      isRunning,
+      hasStarted,
+      startedAt,
+      lastUpdatedAt: Date.now(),
+    })
+  }, [
+    customMinutes,
+    distractions,
+    elapsedSeconds,
+    hasStarted,
+    isRunning,
+    selectedMinutes,
+    startedAt,
+    subject,
+    timeLeft,
+    userId,
+  ])
+
   const resetTimer = (nextMinutes = plannedMinutes) => {
+    const minutes = getPositiveMinutes(nextMinutes, settings.defaultFocusMinutes)
+
     setIsRunning(false)
     setHasStarted(false)
     setStartedAt(null)
     setElapsedSeconds(0)
     setDistractions(0)
-    setTimeLeft(nextMinutes * 60)
+    setTimeLeft(minutes * 60)
   }
 
   const changePlannedMinutes = (value) => {
     setSelectedMinutes(value)
 
-    if (!hasStarted && value !== 'custom') {
-      setTimeLeft(Number(value) * 60)
+    if (!hasStarted) {
+      setTimeLeft(
+        getPlannedMinutes(value, customMinutes, settings.defaultFocusMinutes) *
+          60,
+      )
     }
   }
 
@@ -158,7 +313,6 @@ function TimerPage({
     return {
       id: createSessionId(),
       subject: subject.trim() || 'General Study',
-      task: task.trim() || 'Untitled study task',
       plannedMinutes,
       actualMinutes,
       distractions,
@@ -188,7 +342,6 @@ function TimerPage({
     }
 
     setPendingSession(null)
-    setTask('')
     resetTimer()
     setShowBreak(session.completed)
   }
@@ -350,11 +503,13 @@ function TimerPage({
           </div>
         </section>
 
+        <SpotifyPanel />
+
         <section className="panel session-panel" aria-label="Session details">
           <div className="panel-heading">
             <div>
               <p className="eyebrow">Study Session</p>
-              <h2>Subject and task</h2>
+              <h2>Subject</h2>
             </div>
           </div>
 
@@ -367,14 +522,6 @@ function TimerPage({
                     value={subject}
                     onChange={(event) => setSubject(event.target.value)}
                     placeholder="Math, Biology, Computer Science"
-                  />
-                </label>
-                <label className="field">
-                  <span>Task</span>
-                  <input
-                    value={task}
-                    onChange={(event) => setTask(event.target.value)}
-                    placeholder="Read chapter 4"
                   />
                 </label>
               </div>
