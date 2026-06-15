@@ -1,29 +1,112 @@
-# React + Vite
+# FocusFlow
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+FocusFlow is a productivity timer web app designed to help students stay focused, track study sessions, monitor distractions, and understand their productivity patterns over time.
 
-## Spotify playback
+The app combines a focus timer, session history, analytics dashboard, Firebase authentication, and Spotify playlist integration to create a more useful study environment.
 
-FocusFlow can stream a signed-in user's Spotify playlists on the timer page. Create a Spotify app in the Spotify Developer Dashboard, add your local redirect URI to the app allowlist, then set:
+## Features
 
-```bash
-VITE_SPOTIFY_CLIENT_ID=your_spotify_client_id
-VITE_SPOTIFY_REDIRECT_URI=http://127.0.0.1:5173/callback
-```
+- Focus timer for study/work sessions
+- Break timer after completed focus sessions
+- Distraction tracking during sessions
+- Productivity dashboard with study insights
+- Session history with saved focus data
+- Settings page for user preferences
+- Firebase authentication with sign-in and sign-up
+- Protected routes for logged-in users
+- User-specific local data storage
+- Spotify playlist integration
+- Spotify-style playback control UI
+- Minimal dark UI with purple glow styling
+- Responsive design for desktop and mobile
 
-Browser playback uses Spotify OAuth with PKCE and the Spotify Web Playback SDK. The signed-in Spotify account must have Premium for in-browser streaming.
+## Tech Stack
 
-The dev server is pinned to `http://127.0.0.1:5173` so the Spotify callback does not drift to another port. If `npm run dev` says the port is busy, stop the existing Vite server before signing in with Spotify.
+- React
+- Vite
+- JavaScript
+- CSS
+- Firebase Authentication
+- Spotify Web API
+- Spotify Web Playback SDK
+- localStorage
+- Git and GitHub
 
-Currently, two official plugins are available:
+## Project Purpose
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+The goal of FocusFlow is to solve a real student productivity problem. Many students use timers, but they do not always know how much they actually focused, what distracted them, or when they work best.
 
-## React Compiler
+FocusFlow helps users answer questions like:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- How long did I actually focus today?
+- How many distractions did I have?
+- What subject did I study the most?
+- Am I improving over time?
+- What music helps me focus?
 
-## Expanding the ESLint configuration
+## Environment Variables
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+This project uses Firebase and Spotify, so you need a .env file in the root folder.
+
+Create a .env file and add:
+
+env VITE_FIREBASE_API_KEY=your_firebase_api_key VITE_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain VITE_FIREBASE_PROJECT_ID=your_firebase_project_id VITE_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket VITE_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id VITE_FIREBASE_APP_ID=your_firebase_app_id  VITE_SPOTIFY_CLIENT_ID=your_spotify_client_id 
+
+Do not upload your .env file to GitHub.
+
+## How to Run Locally
+
+Clone the project:
+
+bash git clone https://github.com/Manav21313/FocusFlow.git 
+
+Go into the project folder:
+
+bash cd FocusFlow 
+
+Install dependencies:
+
+bash npm install 
+
+Start the development server:
+
+bash npm run dev 
+
+Open the app in your browser:
+
+text http://127.0.0.1:5173 
+
+## Spotify Setup
+
+To use the Spotify integration, create an app in the Spotify Developer Dashboard.
+
+Use this redirect URI:
+
+text http://127.0.0.1:5173/callback 
+
+Then copy your Spotify Client ID into the .env file.
+
+## Firebase Setup
+
+To use authentication, create a Firebase project and enable:
+
+- Email/Password authentication
+- Google authentication
+
+Also add these authorized domains in Firebase Authentication settings:
+
+text localhost 127.0.0.1 
+
+## Future Improvements
+
+- Store focus sessions in Firestore instead of localStorage
+- Add calendar view for study sessions
+- Add weekly productivity reports
+- Add AI study recommendations
+- Add better Spotify device detection
+- Add exportable study reports
+- Add more detailed charts and streak tracking
+
+## Author
+
+Built by Manav as a real-world computer science project focused on productivity, analytics, authentication, and API integration.
